@@ -31,6 +31,12 @@ function Event(props) {
   let responsable = "";
   let matiere = "";
 
+  const { loading }  = useQuery(queries.ALL_DATA, {
+    
+  });
+
+  console.log(data);
+
   const [state, setState] = useState({
     niveau: undefined,
     parcour: undefined,
