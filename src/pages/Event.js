@@ -28,13 +28,19 @@ class Event extends React.Component{
         this.matiere = text
       }
 
-      onValueChangeP(value: string) {
+      onValueChangeCategorie(value) {
+        this.setState({
+             categorie: value 
+        });
+      }
+
+      onValueChangeP(value) {
         this.setState({
              parcour: value 
         });
       }
 
-      onValueChangeN(value: string) {
+      onValueChangeN(value) {
         this.setState({
              niveau: value 
         });
@@ -86,11 +92,19 @@ class Event extends React.Component{
               <Form style={styles.form}>
 
                 <Item inlineLabel  style={styles.item}>
-                <Icon active name='calendar' />
-                  <Label>Catégorie</Label>
-                  <Input 
-                    onChangeText={(text) => this._categorieTextInputChanged(text)}
-                  />
+                <Picker
+                        mode="dropdown"
+                        style={{ width: undefined }}
+                        placeholder="categorie"
+                        //placeholderStyle={{ color: "#bfc6ea" }}
+                        //placeholderIconColor="#007aff"
+                        selectedValue={this.state.categorie}
+                        onValueChange={this.onValueChangeCategorie.bind(this)}
+                    >
+                    <Picker.Item label="categorie1" value="GB" />
+                    <Picker.Item label="categorie2" value="SR" />
+                    <Picker.Item label="categorie3" value="IG" />
+                </Picker>
                 </Item>
 
                 <Item inlineLabel style={styles.item} >
