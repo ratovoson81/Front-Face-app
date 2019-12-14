@@ -7,7 +7,7 @@ import * as categorieActions from "../actions/categorieActions";
 const actions = { ...categorieActions };
 
 const mapStateToProps = state => ({
-  categorie: state.categorie
+  categorieData: state.categorie
 });
 
 const mapDispatchToProps = dispatch => ({

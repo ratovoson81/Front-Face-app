@@ -11,7 +11,7 @@ class Presence extends React.Component{
       }
 
     render() {
-        console.log(this.props.screenProps.evenement);
+        console.log(this.props.navigation.params.categorieData);
         if(this.props.screenProps.evenement.length === 0) {
         return (
             <Text>

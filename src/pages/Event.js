@@ -43,6 +43,7 @@ function Event(props) {
   });
 
   console.log("eto ay => ", categorieData);
+  console.log("hello");
 
   const [state, setState] = useState({
     niveau: undefined,
@@ -102,8 +103,8 @@ function Event(props) {
       },
       () => {
         props.screenProps.evenement = state.evenement;
-        console.log(props.screenProps.evenement);
-        props.navigation.navigate("Presence");
+        //console.log(props.screenProps.evenement);
+        props.navigation.navigate("Presence", { categorieData });
       }
     );
     //console.log(this.state.evenement);
