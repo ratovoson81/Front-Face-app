@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { useQuery } from "@apollo/react-hooks";
+import { useQuery, useLazyQuery } from "@apollo/react-hooks";
 import {
   StyleSheet,
   Text,
@@ -27,15 +27,22 @@ import {
 import * as queries from "../graphql/queries";
 
 function Event(props) {
+  const { actions, categorieData } = props;
+
   let categorie = "";
   let responsable = "";
   let matiere = "";
 
-  const { loading }  = useQuery(queries.ALL_DATA, {
-    
+  const { loading } = useQuery(queries.ALL_DATA, {
+    onCompleted: data => {
+      const categories = data.categories;
+      actions.setCategorie({
+        listCategorie: categories
+      });
+    }
   });
 
-  console.log(data);
+  console.log("eto ay => ", categorieData);
 
   const [state, setState] = useState({
     niveau: undefined,
