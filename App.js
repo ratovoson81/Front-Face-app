@@ -14,7 +14,6 @@ export default class App extends React.Component {
     super(props);
     this.state = {
       isReady: false,
-      evenement: []
     };
   }
 
@@ -35,11 +34,7 @@ export default class App extends React.Component {
     return (
       <ApolloProvider client={apolloClient}>
         <Provider store={store}>
-          <Navigation
-            screenProps={{
-              evenement: this.state.evenement
-            }}
-          />
+          <Navigation />
         </Provider>
       </ApolloProvider>
     );

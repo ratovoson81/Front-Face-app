@@ -5,7 +5,8 @@ import {
   Text,
   FlatList,
   ScrollView,
-  TouchableOpacity
+  View,
+  SafeAreaView
 } from "react-native";
 import {
   Button,
@@ -21,28 +22,49 @@ import {
   Right,
   Title,
   Picker,
-  Icon
+  Icon,
 } from "native-base";
-
+import {Autocomplete, withKeyboardAwareScrollView} from "react-native-dropdown-autocomplete";
 import * as queries from "../graphql/queries";
 
 function Event(props) {
-  const { actions, categorieData } = props;
+  const { actions, categorieData, groupeData, matiereData, responsableData, categories } = props;
 
   let categorie = "";
   let responsable = "";
   let matiere = "";
-
+  
   const { loading } = useQuery(queries.ALL_DATA, {
     onCompleted: data => {
       const categories = data.categories;
       actions.setCategorie({
         listCategorie: categories
       });
+      
+
+      const groupes = data.groupeParticipants;
+      actions.setGroupe({
+        listGroupe: groupes
+      });
+
+      const matieres = data.matieres;
+      actions.setMatiere({
+        listMatiere: matieres
+      });
+
+      const responsables = data.responsables;
+      actions.setResponsable({
+        listResponsable: responsables
+      });
+      
     }
+    
   });
 
   console.log("eto ay => ", categorieData);
+  console.log("eto ay => ", groupeData);
+  console.log("eto ay => ", matiereData);
+  console.log("eto ay => ", responsableData);
 
   const [state, setState] = useState({
     niveau: undefined,
@@ -88,28 +110,35 @@ function Event(props) {
   }
 
   function _doPresence() {
-    this.setState(
+    setState(
       {
         evenement: [
           {
-            categorie: this.categorie,
-            responsable: this.responsable,
-            matiere: this.matiere,
-            participants: this.state.participants,
+            categorie: categorie,
+            responsable: responsable,
+            matiere: matiere,
+            participants: state.participants,
             date: new Date().getDate()
           }
         ]
-      },
-      () => {
-        props.screenProps.evenement = state.evenement;
-        console.log(props.screenProps.evenement);
-        props.navigation.navigate("Presence");
       }
-    );
-    //console.log(this.state.evenement);
+    )
+    console.log(state.evenement)
+    _navigatePresence()
   }
+      
+    function _navigatePresence()  {
+        props.navigation.navigate("Presence"/*, { evenement: state.evenement }*/);
+      }
+  
+    function handleSelectItem(item, index) {
+        const {onDropdownClose} = props;
+        onDropdownClose();
+        console.log(item);
+    }
 
-  //console.log(this.state.participants);
+    const autocompletes = [...Array(1).keys()];
+    const {scrollToInput, onDropdownClose, onDropdownShow} = props;
   return (
     <Container style={styles.container}>
       <Header>
@@ -121,12 +150,26 @@ function Event(props) {
       </Header>
       <Content>
         <Form style={styles.form}>
-          <Item inlineLabel style={styles.item}>
-            <Icon active name="calendar" />
-            <Label>Catégorie</Label>
-            <Input onChangeText={text => _categorieTextInputChanged(text)} />
-          </Item>
-
+        <View style={styles.autocompletesContainer}>
+        <SafeAreaView>
+          {autocompletes.map(() => (
+            <Autocomplete
+            
+              style={styles.input}
+              scrollToInput={ev => scrollToInput(ev)}
+              handleSelectItem={(item, id) => handleSelectItem(item, id)}
+              onDropdownClose={() => onDropdownClose()}
+              onDropdownShow={() => onDropdownShow()}
+              data={categorieData.listCategorie}
+              minimumCharactersCount={1}
+              highlightText
+              valueExtractor={item => item.nomCategorie}
+              rightContent
+              rightTextExtractor={item => item.id}
+            />
+          ))}
+        </SafeAreaView>
+        </View>
           <Item inlineLabel style={styles.item}>
             <Icon active name="person" />
             <Label>Responsable</Label>
@@ -205,6 +248,12 @@ function Event(props) {
 }
 
 const styles = StyleSheet.create({
+  autocompletesContainer: {
+    paddingTop: 0,
+    zIndex: 1,
+    width: "100%",
+    paddingHorizontal: 8,
+  },
   label: {
     marginLeft: 20,
     marginTop: 20
@@ -228,4 +277,4 @@ const styles = StyleSheet.create({
   }
 });
 
-export default Event;
+export default withKeyboardAwareScrollView(Event);
