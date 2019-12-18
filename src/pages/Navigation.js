@@ -5,7 +5,8 @@ import { createAppContainer } from "react-navigation";
 import { createStackNavigator } from "react-navigation-stack";
 import { createBottomTabNavigator } from "react-navigation-tabs";
 import Event from "../redux/containers/EventCtn";
-import Presence from "./Presence";
+import AutrePage from "./autrePage";
+import Presence from "../components/Presence"
 
 const EventStackNavigator = createStackNavigator({
   Event: {
@@ -13,18 +14,21 @@ const EventStackNavigator = createStackNavigator({
     navigationOptions: {
       //header: null,
       title: "Face Recognition"
-    },
-    Presence: {
-      screen: Presence
     }
+  },
+    Presence: {
+      screen: Presence,
+      navigationOptions: {
+        title: "Presence"
+      }
   }
 });
 
-const PresenceStackNavigator = createStackNavigator({
-  Presence: {
-    screen: Presence,
+const AutrePageStackNavigator = createStackNavigator({
+  AutrePage: {
+    screen: AutrePage,
     navigationOptions: {
-      title: "Presence"
+      title: "AutrePage"
     }
   }
 });
@@ -41,8 +45,8 @@ const TabNavigator = createBottomTabNavigator(
         }
       }
     },
-    Presence: {
-      screen: PresenceStackNavigator,
+    AutrePage: {
+      screen: AutrePageStackNavigator,
       navigationOptions: {
         tabBarIcon: () => {
           return (

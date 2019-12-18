@@ -6,5 +6,20 @@ export const ALL_DATA = gql`
       id
       nomCategorie
     }
+    groupeParticipants{
+      id
+      nomGroupeParticipant
+     }
+     matieres{
+      id
+			nomMatiere
+    }
+    responsables {
+      individu {
+        id
+        nom
+        prenom
+      }
+    }
   }
 `;
