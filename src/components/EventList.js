@@ -30,13 +30,13 @@ return (
 
     <TouchableOpacity onPress={() => EventDetail("1")}>
       <Text style={styles.item}>
-          evenement 1 + detail (responsable, participants,date) + status ( fini ou pas ) + TouchableOpacity pour plus de detail individu
+          Evenement 1 + detail (responsable, participants,date) + status ( fini ou pas ) + TouchableOpacity pour plus de detail individu
       </Text>
       </TouchableOpacity>
 
       <TouchableOpacity onPress={() => EventDetail("2")}>
       <Text style={styles.item}>
-          evenement 2 +detail (responsable,groupe participants,date) + status ( fini ou pas ) + TouchableOpacity pour plus de detail individu
+          Evenement 2 +detail (responsable,groupe participants,date) + status ( fini ou pas ) + TouchableOpacity pour plus de detail individu
       </Text>
       </TouchableOpacity>
 
