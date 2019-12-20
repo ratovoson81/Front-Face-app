@@ -24,10 +24,7 @@ import {
   Picker,
   Icon
 } from "native-base";
-import {
-  Autocomplete,
-  withKeyboardAwareScrollView
-} from "react-native-dropdown-autocomplete";
+import SearchableDropdown from 'react-native-searchable-dropdown';
 import * as queries from "../graphql/queries";
 
 function Event(props) {
@@ -37,16 +34,21 @@ function Event(props) {
     groupeData,
     matiereData,
     responsableData,
-    categories
   } = props;
 
   let categorie = "";
   let responsable = "";
   let matiere = "";
+  let groupeParticipants = "";
+  let evenement = [];
 
-  const { loading } = useQuery(queries.ALL_DATA, {
+  const [state, setState] = useState({
+    
+  });
+
+  const { loading, data } = useQuery(queries.ALL_DATA, {
     onCompleted: data => {
-      console.log(data);
+      
       const categories = data.categories;
       actions.setCategorie({
         listCategorie: categories
@@ -66,80 +68,51 @@ function Event(props) {
       actions.setResponsable({
         listResponsable: responsables
       });
-    }
+    },
   });
 
-  const [state, setState] = useState({
-    niveau: undefined,
-    parcour: undefined,
-    participants: [],
-    evenement: []
-  });
-
-  function _categorieTextInputChanged(text) {
-    categorie = text;
-  }
-  function _reponsableTextInputChanged(text) {
-    responsable = text;
-  }
-  function _matiereTextInputChanged(text) {
-    matiere = text;
-  }
-
-  function onValueChangeP(value) {
-    setState({
-      ...state,
-      parcour: value
-    });
-  }
-
-  function onValueChangeN(value) {
-    setState({
-      ...state,
-      niveau: value
-    });
-  }
-
-  function _addParticipant() {
-    const data = [
-      {
-        niveau: state.niveau,
-        parcour: state.parcour
-      }
-    ];
-    setState({
-      participants: [...state.participants, ...data]
-    });
-  }
-
-  function _doPresence() {
-    setState({
-      evenement: [
+  function _addEvent() {
+    let month = new Date().getMonth() + 1;
+      evenement = [
         {
           categorie: categorie,
           responsable: responsable,
-          matiere: matiere,
-          participants: state.participants,
-          date: new Date().getDate()
+          matiere:matiere,
+          participants: groupeParticipants,
+          date: new Date().getHours() +':'+
+                new Date().getMinutes() +' '+
+                new Date().getDate() +'-'+
+                month +'-'+
+                new Date().getFullYear()
         }
-      ]
-    });
-    console.log(state.evenement);
-    _navigatePresence();
+      ];
+    
+    console.log(evenement);
+  
+    props.navigation.navigate("EventList", { evenement: evenement });
   }
 
-  function _navigatePresence() {
-    props.navigation.navigate("Presence" /*, { evenement: state.evenement }*/);
+  let dataFormCategorie = [];
+  for (const property in categorieData.listCategorie) {
+    dataFormCategorie.push({name : categorieData.listCategorie[property].nomCategorie, id : property})
   }
 
-  function handleSelectItem(item, index) {
-    const { onDropdownClose } = props;
-    onDropdownClose();
-    console.log(item);
+  let dataFormResponsable = [];
+  let r = responsableData.listResponsable;
+  for (const property in r) {
+    dataFormResponsable.push({name : r[property].individu.nom +' '+ r[property].individu.prenom, id : property})
   }
 
-  const autocompletes = [...Array(1).keys()];
-  const { scrollToInput, onDropdownClose, onDropdownShow } = props;
+  let dataFormMatiere = [];
+  for (const property in matiereData.listMatiere) {
+    dataFormMatiere.push({name : matiereData.listMatiere[property].nomMatiere, id : property})
+  }
+
+  let dataFormGroupeParticipants = [];
+  for (const property in groupeData.listGroupe) {
+    dataFormGroupeParticipants.push({name : groupeData.listGroupe[property].nomGroupeParticipant, id : property})
+  }
+
   return (
     <Container style={styles.container}>
       <Header>
@@ -151,92 +124,176 @@ function Event(props) {
       </Header>
       <Content>
         <Form style={styles.form}>
-          <View style={styles.autocompletesContainer}>
-            <SafeAreaView>
-              {autocompletes.map(() => (
-                <Autocomplete
-                  style={styles.input}
-                  scrollToInput={ev => scrollToInput(ev)}
-                  handleSelectItem={(item, id) => handleSelectItem(item, id)}
-                  onDropdownClose={() => onDropdownClose()}
-                  onDropdownShow={() => onDropdownShow()}
-                  data={categorieData.listCategorie}
-                  minimumCharactersCount={1}
-                  highlightText
-                  valueExtractor={item => item.nomCategorie}
-                  rightContent
-                  rightTextExtractor={item => item.id}
-                />
-              ))}
-            </SafeAreaView>
+          <View style={styles.item}>
+
+          <SearchableDropdown
+            multi={false}
+            onItemSelect={(item) => {
+              categorie = item.name;
+            }}
+            containerStyle={{ padding: 5 }}
+            itemStyle={{
+              padding: 10,
+              marginTop: 2,
+              backgroundColor: '#ddd',
+              borderColor: '#bbb',
+              borderWidth: 1,
+              borderRadius: 5,
+            }}
+            itemTextStyle={{ color: '#222' }}
+            itemsContainerStyle={{ maxHeight: 140 }}
+            items={dataFormCategorie}
+            defaultIndex={2}
+            chip={true}
+            resetValue={false}
+            textInputProps={
+              {
+                placeholder: "Categorie",
+                underlineColorAndroid: "transparent",
+                style: {
+                    padding: 12,
+                    borderWidth: 1,
+                    borderColor: '#ccc',
+                    borderRadius: 5,
+                },
+              }
+            }
+            listProps={
+              {
+                nestedScrollEnabled: true,
+              }
+            }
+          />
           </View>
-          <Item inlineLabel style={styles.item}>
-            <Icon active name="person" />
-            <Label>Responsable</Label>
-            <Input onChangeText={text => _reponsableTextInputChanged(text)} />
-          </Item>
-
-          <Item inlineLabel style={styles.item}>
-            <Icon active name="book" />
-            <Label>Matière</Label>
-            <Input onChangeText={text => _matiereTextInputChanged(text)} />
-          </Item>
-
-          <Form>
-            <Label style={styles.label}>Choisir les participants</Label>
-            <Item picker style={styles.item}>
-              <Picker
-                mode="dropdown"
-                style={{ width: undefined }}
-                placeholder="Niveau"
-                //placeholderStyle={{ color: "#bfc6ea" }}
-                //placeholderIconColor="#007aff"
-                selectedValue={state.niveau}
-                onValueChange={onValueChangeN.bind(this)}
-              >
-                <Picker.Item label="L1" value="L1" />
-                <Picker.Item label="L2" value="L2" />
-                <Picker.Item label="L3" value="L3" />
-                <Picker.Item label="M1" value="M1" />
-                <Picker.Item label="M2" value="M2" />
-              </Picker>
-
-              <Picker
-                mode="dropdown"
-                style={{ width: undefined }}
-                placeholder="Parcour"
-                //placeholderStyle={{ color: "#bfc6ea" }}
-                //placeholderIconColor="#007aff"
-                selectedValue={state.parcour}
-                onValueChange={onValueChangeP.bind(this)}
-              >
-                <Picker.Item label="GB" value="GB" />
-                <Picker.Item label="SR" value="SR" />
-                <Picker.Item label="IG" value="IG" />
-              </Picker>
-
-              <Button secondary rounded onPress={() => _addParticipant()}>
-                <Icon name="add" />
-              </Button>
-            </Item>
-          </Form>
-
-          <ScrollView style={{ flex: 1 }}>
-            <FlatList
-              data={state.participants}
-              keyExtractor={item => item.niveau + item.parcour}
-              renderItem={({ item }) => (
-                <Text>
-                  {item.niveau} {item.parcour}
-                </Text>
-              )}
-            />
-          </ScrollView>
+          <View style={styles.item}>
+          
+          <SearchableDropdown
+            multi={false}
+            onItemSelect={(item) => {
+              responsable = item.name;
+            }}
+            containerStyle={{ padding: 5 }}
+            itemStyle={{
+              padding: 10,
+              marginTop: 2,
+              backgroundColor: '#ddd',
+              borderColor: '#bbb',
+              borderWidth: 1,
+              borderRadius: 5,
+            }}
+            itemTextStyle={{ color: '#222' }}
+            itemsContainerStyle={{ maxHeight: 140 }}
+            items={dataFormResponsable}
+            defaultIndex={2}
+            chip={true}
+            resetValue={false}
+            textInputProps={
+              {
+                placeholder: "Responsable",
+                underlineColorAndroid: "transparent",
+                style: {
+                    padding: 12,
+                    borderWidth: 1,
+                    borderColor: '#ccc',
+                    borderRadius: 5,
+                },
+                //onTextChange: text => alert(text)
+              }
+            }
+            listProps={
+              {
+                nestedScrollEnabled: true,
+              }
+            }
+          />
+          </View>
+          <View style={styles.item}>
+          <SearchableDropdown
+            multi={false}
+            onItemSelect={(item) => {
+              matiere = item.name;
+            }}
+            containerStyle={{ padding: 5 }}
+            itemStyle={{
+              padding: 10,
+              marginTop: 2,
+              backgroundColor: '#ddd',
+              borderColor: '#bbb',
+              borderWidth: 1,
+              borderRadius: 5,
+            }}
+            itemTextStyle={{ color: '#222' }}
+            itemsContainerStyle={{ maxHeight: 140 }}
+            items={dataFormMatiere}
+            defaultIndex={2}
+            chip={true}
+            resetValue={false}
+            textInputProps={
+              {
+                placeholder: "Matiere",
+                underlineColorAndroid: "transparent",
+                style: {
+                    padding: 12,
+                    borderWidth: 1,
+                    borderColor: '#ccc',
+                    borderRadius: 5,
+                },
+                //onTextChange: text => alert(text)
+              }
+            }
+            listProps={
+              {
+                nestedScrollEnabled: true,
+              }
+            }
+          />
+          </View>
+          <View style={styles.item}>
+          <SearchableDropdown
+            multi={false}
+            onItemSelect={(item) => {
+              groupeParticipants = item.name;
+            }}
+            containerStyle={{ padding: 5 }}
+            itemStyle={{
+              padding: 10,
+              marginTop: 2,
+              backgroundColor: '#ddd',
+              borderColor: '#bbb',
+              borderWidth: 1,
+              borderRadius: 5,
+            }}
+            itemTextStyle={{ color: '#222' }}
+            itemsContainerStyle={{ maxHeight: 140 }}
+            items={dataFormGroupeParticipants}
+            defaultIndex={2}
+            chip={true}
+            resetValue={false}
+            textInputProps={
+              {
+                placeholder: "Participants",
+                underlineColorAndroid: "transparent",
+                style: {
+                    padding: 12,
+                    borderWidth: 1,
+                    borderColor: '#ccc',
+                    borderRadius: 5,
+                },
+                //onTextChange: text => alert(text)
+              }
+            }
+            listProps={
+              {
+                nestedScrollEnabled: true,
+              }
+            }
+          />
+          </View>
           <Button
             style={styles.button}
             rounded
             iconLeft
-            onPress={() => _doPresence()}
+            onPress={() => _addEvent()}
           >
             <Text style={styles.text}>CONFIRMER</Text>
             <Icon name="paper-plane" />
@@ -254,21 +311,16 @@ const styles = StyleSheet.create({
     width: "100%",
     paddingHorizontal: 8
   },
-  label: {
-    marginLeft: 20,
-    marginTop: 20
-  },
   form: {
     alignItems: "center",
     justifyContent: "center"
   },
   item: {
-    marginTop: 20,
-    marginBottom: 20,
-    width: 350
+    marginTop: 40,
+    width: 350,
   },
   button: {
-    marginTop: 20,
+    marginTop: 40,
     marginBottom: 20,
     padding: 15
   },
@@ -277,4 +329,4 @@ const styles = StyleSheet.create({
   }
 });
 
-export default withKeyboardAwareScrollView(Event);
+export default Event;
