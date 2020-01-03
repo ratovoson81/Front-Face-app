@@ -22,7 +22,7 @@ export const ALL_DATA = gql`
         prenom
       }
     }
-    evenements {
+    evenements{
       id
       categorie{
         nomCategorie
@@ -30,19 +30,25 @@ export const ALL_DATA = gql`
       matiere{
         nomMatiere
       }
-      responsables {
+      responsables{
         individu{
+          id
           nom
           prenom
         }
       }
-      presences {
+      presences{
+        id
         individu{
           nom
           prenom
         }
         niveau
         parcours
+      }
+      groupeParticipants{
+        id
+        nomGroupeParticipant
       }
       dateDebut
       dateFin

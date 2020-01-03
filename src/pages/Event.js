@@ -111,7 +111,6 @@ function Event(props) {
     dataFormGroupeParticipants.push({value : groupeData.listGroupe[property].nomGroupeParticipant, id : property})
   }
 
-
   return (
     <Container style={styles.container}>
       <Header>
