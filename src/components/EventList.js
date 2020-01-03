@@ -63,7 +63,7 @@ return (
           style={styles.list}
           data={evenementData.listEvenement}
           keyExtractor={(item) => item.id.toString()}
-          renderItem={({item}) => (
+          renderItem={({item}) => ( 
             <TouchableOpacity
             style={styles.main_container}
                 >
@@ -75,8 +75,11 @@ return (
               <View style={styles.description_container}>
                 <Text style={styles.description_text}>{item.matiere.nomMatiere} </Text>
                 <Text style={styles.description_text}> 
-                  {item.responsables.map (p => <Text key = {p.id}>{p.individu.nom} {p.individu.prenom} </Text>)} 
+                  {item.responsables.map (p => <Text key = {p.individu.id}>{p.individu.nom} {p.individu.prenom}</Text>)} 
                 </Text>
+                <Text style={styles.description_text}>{item.groupeParticipants.nomGroupeParticipant}
+                  {item.groupeParticipants.map (p => <Text key = {p.id}>{p.nomGroupeParticipant}</Text>)} 
+                  </Text>
               </View>
             </View>
           </TouchableOpacity>
