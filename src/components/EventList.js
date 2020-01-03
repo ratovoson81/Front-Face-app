@@ -1,5 +1,7 @@
 import React, { useState } from "react";
-import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
+import { useQuery } from "@apollo/react-hooks";
+import * as queries from "../graphql/queries";
+import { View, Text, StyleSheet, TouchableOpacity, FlatList } from "react-native";
 import {
   Button,
   Container,
@@ -13,8 +15,38 @@ import {
 
 function EventList(props) {
 
+  const {
+    actions,
+    evenementData,
+  } = props;
+
+  const [state, setState] = useState({
+
+  });
+
+  const { loading, data } = useQuery(queries.ALL_DATA, {
+    onCompleted: data => {
+      
+      const evenements = data.evenements;
+      actions.setEvenement({
+        listEvenement: evenements
+      });
+
+    },
+  });
+
+  console.log('ici',evenementData);
+
   function EventDetail(id) {    
     props.navigation.navigate("EventDetail", {id : id});
+  }
+  console.log(evenementData.listEvenement)
+
+  function _displayStatus() {
+    // condition status
+    return (
+      <Text>non débuté</Text>
+    )
   }
 
 return (
@@ -27,18 +59,30 @@ return (
     <Right />
   </Header>
   <Content>
+  <FlatList
+          style={styles.list}
+          data={evenementData.listEvenement}
+          keyExtractor={(item) => item.id.toString()}
+          renderItem={({item}) => (
+            <TouchableOpacity
+            style={styles.main_container}
+                >
+            <View style={styles.content_container}>
+              <View style={styles.header_container}>
+                <Text style={styles.categorie}>{item.categorie.nomCategorie}</Text>
+                <Text style={styles.status}>{_displayStatus()}</Text>
+              </View>
+              <View style={styles.description_container}>
+                <Text style={styles.description_text}>{item.matiere.nomMatiere} </Text>
+                <Text style={styles.description_text}> 
+                  {item.responsables.map (p => <Text key = {p.id}>{p.individu.nom} {p.individu.prenom} </Text>)} 
+                </Text>
+              </View>
+            </View>
+          </TouchableOpacity>
+          )}
 
-    <TouchableOpacity onPress={() => EventDetail("1")}>
-      <Text style={styles.item}>
-          Evenement 1 + detail (responsable, participants,date) + status ( fini ou pas ) + TouchableOpacity pour plus de detail individu
-      </Text>
-      </TouchableOpacity>
-
-      <TouchableOpacity onPress={() => EventDetail("2")}>
-      <Text style={styles.item}>
-          Evenement 2 +detail (responsable,groupe participants,date) + status ( fini ou pas ) + TouchableOpacity pour plus de detail individu
-      </Text>
-      </TouchableOpacity>
+        />
 
   </Content>
   </Container>
@@ -63,7 +107,44 @@ const styles = StyleSheet.create({
   Content: {
       alignItems: "center",
       justifyContent: "center"
+  },
+  list: {
+    flex: 1
+  },
+  main_container: {  
+    flexDirection: 'row'
+  },
+  content_container: {
+    flex: 1,
+    margin: 5
+  },
+  header_container: {
+    flex: 3,
+    flexDirection: 'row'
+  },
+  categorie: {
+    fontWeight: 'bold',
+    fontSize: 20,
+    flex: 1,
+    flexWrap: 'wrap',
+    paddingRight: 5
+  },
+  status: {
+    fontWeight: 'bold',
+    fontSize: 20,
+    color: '#666666'
+  },
+  description_container: {
+    flex: 7
+  },
+  description_text: {
+    color: '#666666'
+  },
+  date_container: {
+    flex: 1
   }
 });
 
 export default EventList;
+
+
