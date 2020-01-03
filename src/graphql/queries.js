@@ -12,9 +12,10 @@ export const ALL_DATA = gql`
      }
      matieres {
       id
-			nomMatiere
+      nomMatiere
     }
     responsables {
+      id
       individu {
         id
         nom

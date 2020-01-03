@@ -17,6 +17,7 @@ import {
   Title,
   Icon
 } from "native-base";
+
 import * as queries from "../graphql/queries";
 import { Dropdown } from 'react-native-material-dropdown';
 
@@ -26,7 +27,7 @@ function Event(props) {
     categorieData,
     groupeData,
     matiereData,
-    responsableData,
+    responsableData
   } = props;
 
   let categorie = "";
@@ -39,9 +40,9 @@ function Event(props) {
 
   });
 
+
   const { loading, data } = useQuery(queries.ALL_DATA, {
     onCompleted: data => {
-      
       const categories = data.categories;
       actions.setCategorie({
         listCategorie: categories
@@ -61,11 +62,12 @@ function Event(props) {
       actions.setResponsable({
         listResponsable: responsables
       });
-    },
+    }
   });
 
   function _addEvent() {
     let month = new Date().getMonth() + 1;
+
     if( categorie !== "" && responsable !== "" && matiere !== "" && groupeParticipants !== "" ){
       evenement = [
         {
@@ -81,6 +83,7 @@ function Event(props) {
         }
       ];    
     console.log(evenement);
+
     props.navigation.navigate("EventList", { evenement: evenement });
     }else{
     alert("completer les formulaires")
@@ -121,6 +124,7 @@ function Event(props) {
       <Content>
         <Form style={styles.form}>
           <View style={styles.item}>
+
           <Dropdown
             label='Categorie'
             data={dataFormCategorie}
@@ -155,6 +159,7 @@ function Event(props) {
               groupeParticipants = value
             }}
           />
+
           </View>
 
           <Button
