@@ -83,8 +83,8 @@ function Event(props) {
         }
       ];    
     console.log(evenement);
-
-    props.navigation.navigate("EventList", { evenement: evenement });
+    alert("Evenement crée")
+    //props.navigation.navigate("EventList", { evenement: evenement });
     }else{
     alert("completer les formulaires")
     }
