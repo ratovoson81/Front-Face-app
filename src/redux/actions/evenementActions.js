@@ -6,3 +6,10 @@ export function setEvenement(payload) {
     payload
   };
 }
+
+export function addEvenement(payload) {
+  return {
+    type: types.ADD_EVENEMENT,
+    payload
+  };
+}
