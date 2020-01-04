@@ -13,6 +13,11 @@ const evenement = (state = initialState, action) => {
       newState.listEvenement = payload.listEvenement;
       return newState;
 
+    case types.ADD_EVENEMENT:
+      payload = action.payload;
+      newState.listEvenement = [...state.listEvenement, payload.event];
+      return newState;
+
     default:
       return state;
   }

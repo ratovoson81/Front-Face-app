@@ -4,8 +4,6 @@
     <list default="true" id="82975088-8413-41ec-9b8f-c0412bbda24e" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/config/config.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/config/config.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/graphql/queries.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/graphql/queries.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/pages/Event.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/pages/Event.js" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -64,7 +62,7 @@
     <frame x="0" y="27" width="1920" height="1053" extended-state="6" />
     <layout>
       <window_info id="Captures" order="0" weight="0.25" />
-      <window_info active="true" content_ui="combo" id="Project" order="1" visible="true" weight="0.32999474" />
+      <window_info content_ui="combo" id="Project" order="1" visible="true" weight="0.3340448" />
       <window_info id="Structure" order="2" side_tool="true" />
       <window_info id="Image Layers" order="3" />
       <window_info id="Designer" order="4" />
@@ -75,6 +73,7 @@
       <window_info anchor="bottom" id="TODO" order="1" />
       <window_info anchor="bottom" id="Terminal" order="2" />
       <window_info anchor="bottom" id="Event Log" order="3" side_tool="true" />
+      <window_info active="true" anchor="right" id="Assistant" visible="true" weight="0.11632871" />
       <window_info anchor="right" id="Capture Analysis" order="0" />
       <window_info anchor="right" id="Theme Preview" order="1" />
       <window_info anchor="right" id="Palette&#9;" order="2" />

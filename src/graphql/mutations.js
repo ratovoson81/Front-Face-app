@@ -35,20 +35,31 @@ export const CREATE_EVENT = gql`
     ) {
       evenement {
         id
+        categorie {
+          nomCategorie
+        }
+        matiere {
+          nomMatiere
+        }
         responsables {
-          id
+          individu {
+            id
+            nom
+            prenom
+          }
         }
         presences {
           id
+          individu {
+            nom
+            prenom
+          }
+          niveau
+          parcours
         }
         groupeParticipants {
           id
-        }
-        categorie {
-          id
-        }
-        matiere {
-          id
+          nomGroupeParticipant
         }
         dateDebut
         dateFin

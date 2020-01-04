@@ -1,7 +1,13 @@
 import React, { useState } from "react";
 import { useQuery } from "@apollo/react-hooks";
 import * as queries from "../graphql/queries";
-import { View, Text, StyleSheet, TouchableOpacity, FlatList } from "react-native";
+import {
+  View,
+  Text,
+  StyleSheet,
+  TouchableOpacity,
+  FlatList
+} from "react-native";
 import {
   Button,
   Container,
@@ -10,87 +16,88 @@ import {
   Left,
   Body,
   Right,
-  Title,
+  Title
 } from "native-base";
 
 function EventList(props) {
+  const { actions, evenementData } = props;
 
-  const {
-    actions,
-    evenementData,
-  } = props;
-
-  const [state, setState] = useState({
-
-  });
+  const [state, setState] = useState({});
 
   const { loading, data } = useQuery(queries.ALL_DATA, {
     onCompleted: data => {
-      
       const evenements = data.evenements;
       actions.setEvenement({
         listEvenement: evenements
       });
-
-    },
+    }
   });
 
-  console.log('ici',evenementData);
-
-  function EventDetail(id) {    
-    props.navigation.navigate("EventDetail", {id : id});
-  }
-  console.log(evenementData.listEvenement)
-
-  function _displayStatus() {
-    // condition status
-    return (
-      <Text>non débuté</Text>
-    )
+  function EventDetail(id) {
+    props.navigation.navigate("EventDetail", { id: id });
   }
 
-return (
-  <Container>
-  <Header>
-    <Left />
-    <Body>
-      <Title>Liste evenement </Title>
-    </Body>
-    <Right />
-  </Header>
-  <Content>
-  <FlatList
+  function _displayStatus(event) {
+    console.log("\n\nEVENEMENT ===> \n", event, "\n\n");
+    let status = "";
+    const dateDebut = event.dateDebut;
+    const dateFin = event.dateFin;
+
+    if (!dateDebut) status = "non debutee";
+    if (dateDebut) status = "en cours";
+    if (dateFin) status = "terminee";
+
+    return <Text>{status}</Text>;
+  }
+
+  return (
+    <Container>
+      <Header>
+        <Left />
+        <Body>
+          <Title>Liste evenement </Title>
+        </Body>
+        <Right />
+      </Header>
+      <Content>
+        <FlatList
           style={styles.list}
           data={evenementData.listEvenement}
-          keyExtractor={(item) => item.id.toString()}
-          renderItem={({item}) => ( 
-            <TouchableOpacity
-            style={styles.main_container}
-                >
-            <View style={styles.content_container}>
-              <View style={styles.header_container}>
-                <Text style={styles.categorie}>{item.categorie.nomCategorie}</Text>
-                <Text style={styles.status}>{_displayStatus()}</Text>
-              </View>
-              <View style={styles.description_container}>
-                <Text style={styles.description_text}>{item.matiere.nomMatiere} </Text>
-                <Text style={styles.description_text}> 
-                  {item.responsables.map (p => <Text key = {p.individu.id}>{p.individu.nom} {p.individu.prenom}</Text>)} 
-                </Text>
-                <Text style={styles.description_text}>{item.groupeParticipants.nomGroupeParticipant}
-                  {item.groupeParticipants.map (p => <Text key = {p.id}>{p.nomGroupeParticipant}</Text>)} 
+          keyExtractor={item => item.id.toString()}
+          renderItem={({ item }) => (
+            <TouchableOpacity style={styles.main_container}>
+              <View style={styles.content_container}>
+                <View style={styles.header_container}>
+                  <Text style={styles.categorie}>
+                    {item.categorie.nomCategorie}
                   </Text>
+                  <Text style={styles.status}>{_displayStatus(item)}</Text>
+                </View>
+                <View style={styles.description_container}>
+                  <Text style={styles.description_text}>
+                    {item.matiere.nomMatiere}{" "}
+                  </Text>
+                  <Text style={styles.description_text}>
+                    {item.responsables.map(p => (
+                      <Text key={p.individu.id}>
+                        {p.individu.nom} {p.individu.prenom}
+                      </Text>
+                    ))}
+                  </Text>
+                  <Text style={styles.description_text}>
+                    {item.groupeParticipants.nomGroupeParticipant}
+                    {item.groupeParticipants.map(p => (
+                      <Text key={p.id}>{p.nomGroupeParticipant}</Text>
+                    ))}
+                  </Text>
+                </View>
               </View>
-            </View>
-          </TouchableOpacity>
+            </TouchableOpacity>
           )}
-
         />
-
-  </Content>
-  </Container>
-);
-
+      </Content>
+    </Container>
+  );
 }
 
 const styles = StyleSheet.create({
@@ -98,7 +105,7 @@ const styles = StyleSheet.create({
     marginTop: 40,
     marginBottom: 20,
     padding: 15,
-    maxWidth: 60,
+    maxWidth: 60
   },
   item: {
     marginTop: 40,
@@ -108,14 +115,14 @@ const styles = StyleSheet.create({
     color: "white"
   },
   Content: {
-      alignItems: "center",
-      justifyContent: "center"
+    alignItems: "center",
+    justifyContent: "center"
   },
   list: {
     flex: 1
   },
-  main_container: {  
-    flexDirection: 'row'
+  main_container: {
+    flexDirection: "row"
   },
   content_container: {
     flex: 1,
@@ -123,25 +130,25 @@ const styles = StyleSheet.create({
   },
   header_container: {
     flex: 3,
-    flexDirection: 'row'
+    flexDirection: "row"
   },
   categorie: {
-    fontWeight: 'bold',
+    fontWeight: "bold",
     fontSize: 20,
     flex: 1,
-    flexWrap: 'wrap',
+    flexWrap: "wrap",
     paddingRight: 5
   },
   status: {
-    fontWeight: 'bold',
+    fontWeight: "bold",
     fontSize: 20,
-    color: '#666666'
+    color: "#666666"
   },
   description_container: {
     flex: 7
   },
   description_text: {
-    color: '#666666'
+    color: "#666666"
   },
   date_container: {
     flex: 1
@@ -149,5 +156,3 @@ const styles = StyleSheet.create({
 });
 
 export default EventList;
-
-
