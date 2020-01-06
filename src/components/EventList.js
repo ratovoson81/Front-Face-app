@@ -33,8 +33,8 @@ function EventList(props) {
     }
   });
 
-  function EventDetail(id) {
-    props.navigation.navigate("EventDetail", { id: id });
+  function EventDetail(item) {
+    props.navigation.navigate("EventDetail", { item: item });
   }
 
   function _displayStatus(event) {
@@ -65,7 +65,9 @@ function EventList(props) {
           data={evenementData.listEvenement}
           keyExtractor={item => item.id.toString()}
           renderItem={({ item }) => (
-            <TouchableOpacity style={styles.main_container}>
+            <TouchableOpacity 
+            style={styles.main_container}
+            onPress={() => EventDetail(item)}>
               <View style={styles.content_container}>
                 <View style={styles.header_container}>
                   <Text style={styles.categorie}>

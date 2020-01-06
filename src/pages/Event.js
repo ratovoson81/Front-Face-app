@@ -11,7 +11,8 @@ import {
   Body,
   Right,
   Title,
-  Icon
+  Icon,
+  Toast 
 } from "native-base";
 
 import * as queries from "../graphql/queries";
@@ -31,7 +32,8 @@ function Event(props) {
     categorie: "",
     responsable: "",
     matiere: "",
-    groupeParticipants: ""
+    groupeParticipants: "",
+    showToast: false
   });
 
   const {} = useQuery(queries.ALL_DATA, {
@@ -123,10 +125,19 @@ function Event(props) {
         if (groupe.value === state.groupeParticipants)
           evenement.groupeParticipants = [groupe.id];
       });
+      Toast.show({
+        text: "Evenement crée !",
+        buttonText: "Okay",
+        type: "success"
+      })
       //props.navigation.navigate("EventList", { evenement: evenement });
       return evenement;
     } else {
-      alert("completer les formulaires");
+      Toast.show({
+        text: "completez les champs !",
+        buttonText: "Okay",
+        type: "danger"
+      })
     }
   }
 
@@ -138,7 +149,6 @@ function Event(props) {
   function onCompleteMutation(data) {
     const event = data.createEvent.evenement;
     actions.addEvenement({ event });
-    alert("Evenement crée");
   }
 
   return (
@@ -150,7 +160,7 @@ function Event(props) {
         </Body>
         <Right />
       </Header>
-      <Content>
+      <Content padder>
         <Form style={styles.form}>
           <View style={styles.item}>
             <Dropdown

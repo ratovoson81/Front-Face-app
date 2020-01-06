@@ -9,6 +9,8 @@ import { Provider } from "react-redux";
 import apolloClient from "./src/graphql/apollo";
 import store from "./src/redux/store";
 
+import { Root } from "native-base";
+
 export default class App extends React.Component {
   constructor(props) {
     super(props);
@@ -34,7 +36,9 @@ export default class App extends React.Component {
     return (
       <ApolloProvider client={apolloClient}>
         <Provider store={store}>
-          <Navigation />
+          <Root>
+            <Navigation />
+            </Root>
         </Provider>
       </ApolloProvider>
     );
