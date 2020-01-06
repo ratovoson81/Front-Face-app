@@ -1,5 +1,13 @@
 import React, { useState } from "react";
-import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
+import { useQuery } from "@apollo/react-hooks";
+import * as queries from "../graphql/queries";
+import {
+  View,
+  Text,
+  StyleSheet,
+  TouchableOpacity,
+  FlatList
+} from "react-native";
 import {
   Button,
   Container,
@@ -8,42 +16,90 @@ import {
   Left,
   Body,
   Right,
-  Title,
+  Title
 } from "native-base";
 
 function EventList(props) {
+  const { actions, evenementData } = props;
 
-  function EventDetail(id) {    
-    props.navigation.navigate("EventDetail", {id : id});
+  const [state, setState] = useState({});
+
+  const { loading, data } = useQuery(queries.ALL_DATA, {
+    onCompleted: data => {
+      const evenements = data.evenements;
+      actions.setEvenement({
+        listEvenement: evenements
+      });
+    }
+  });
+
+  function EventDetail(item) {
+    props.navigation.navigate("EventDetail", { item: item });
   }
 
-return (
-  <Container>
-  <Header>
-    <Left />
-    <Body>
-      <Title>Liste evenement </Title>
-    </Body>
-    <Right />
-  </Header>
-  <Content>
+  function _displayStatus(event) {
+    console.log("\n\nEVENEMENT ===> \n", event, "\n\n");
+    let status = "";
+    const dateDebut = event.dateDebut;
+    const dateFin = event.dateFin;
 
-    <TouchableOpacity onPress={() => EventDetail("1")}>
-      <Text style={styles.item}>
-          evenement 1 + detail (responsable, participants,date) + status ( fini ou pas ) + TouchableOpacity pour plus de detail individu
-      </Text>
-      </TouchableOpacity>
+    if (!dateDebut) status = "non debutee";
+    if (dateDebut) status = "en cours";
+    if (dateFin) status = "terminee";
 
-      <TouchableOpacity onPress={() => EventDetail("2")}>
-      <Text style={styles.item}>
-          evenement 2 +detail (responsable,groupe participants,date) + status ( fini ou pas ) + TouchableOpacity pour plus de detail individu
-      </Text>
-      </TouchableOpacity>
+    return <Text>{status}</Text>;
+  }
 
-  </Content>
-  </Container>
-);
-
+  return (
+    <Container>
+      <Header>
+        <Left />
+        <Body>
+          <Title>Liste evenement </Title>
+        </Body>
+        <Right />
+      </Header>
+      <Content>
+        <FlatList
+          style={styles.list}
+          data={evenementData.listEvenement}
+          keyExtractor={item => item.id.toString()}
+          renderItem={({ item }) => (
+            <TouchableOpacity 
+            style={styles.main_container}
+            onPress={() => EventDetail(item)}>
+              <View style={styles.content_container}>
+                <View style={styles.header_container}>
+                  <Text style={styles.categorie}>
+                    {item.categorie.nomCategorie}
+                  </Text>
+                  <Text style={styles.status}>{_displayStatus(item)}</Text>
+                </View>
+                <View style={styles.description_container}>
+                  <Text style={styles.description_text}>
+                    {item.matiere.nomMatiere}{" "}
+                  </Text>
+                  <Text style={styles.description_text}>
+                    {item.responsables.map(p => (
+                      <Text key={p.individu.id}>
+                        {p.individu.nom} {p.individu.prenom}
+                      </Text>
+                    ))}
+                  </Text>
+                  <Text style={styles.description_text}>
+                    {item.groupeParticipants.nomGroupeParticipant}
+                    {item.groupeParticipants.map(p => (
+                      <Text key={p.id}>{p.nomGroupeParticipant}</Text>
+                    ))}
+                  </Text>
+                </View>
+              </View>
+            </TouchableOpacity>
+          )}
+        />
+      </Content>
+    </Container>
+  );
 }
 
 const styles = StyleSheet.create({
@@ -51,7 +107,7 @@ const styles = StyleSheet.create({
     marginTop: 40,
     marginBottom: 20,
     padding: 15,
-    maxWidth: 60,
+    maxWidth: 60
   },
   item: {
     marginTop: 40,
@@ -61,8 +117,43 @@ const styles = StyleSheet.create({
     color: "white"
   },
   Content: {
-      alignItems: "center",
-      justifyContent: "center"
+    alignItems: "center",
+    justifyContent: "center"
+  },
+  list: {
+    flex: 1
+  },
+  main_container: {
+    flexDirection: "row"
+  },
+  content_container: {
+    flex: 1,
+    margin: 5
+  },
+  header_container: {
+    flex: 3,
+    flexDirection: "row"
+  },
+  categorie: {
+    fontWeight: "bold",
+    fontSize: 20,
+    flex: 1,
+    flexWrap: "wrap",
+    paddingRight: 5
+  },
+  status: {
+    fontWeight: "bold",
+    fontSize: 20,
+    color: "#666666"
+  },
+  description_container: {
+    flex: 7
+  },
+  description_text: {
+    color: "#666666"
+  },
+  date_container: {
+    flex: 1
   }
 });
 

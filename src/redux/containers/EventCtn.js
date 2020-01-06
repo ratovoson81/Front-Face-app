@@ -3,11 +3,18 @@ import { connect } from "react-redux";
 
 import Event from "../../pages/Event";
 import * as categorieActions from "../actions/categorieActions";
-import * as groupeActions from "../actions/groupeParticipantActions"
-import * as matiereActions from "../actions/matiereAction"
-import * as responsableActions from "../actions/responsableActions"
+import * as groupeActions from "../actions/groupeParticipantActions";
+import * as matiereActions from "../actions/matiereAction";
+import * as responsableActions from "../actions/responsableActions";
+import * as eventActions from "../actions/evenementActions";
 
-const actions = { ...categorieActions, ...groupeActions, ...matiereActions, ...responsableActions };
+const actions = {
+  ...categorieActions,
+  ...groupeActions,
+  ...matiereActions,
+  ...responsableActions,
+  ...eventActions
+};
 
 const mapStateToProps = state => ({
   categorieData: state.categorie,

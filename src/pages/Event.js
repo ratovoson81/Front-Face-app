@@ -1,31 +1,23 @@
 import React, { useState } from "react";
-import { useQuery, useLazyQuery } from "@apollo/react-hooks";
-import {
-  StyleSheet,
-  Text,
-  FlatList,
-  ScrollView,
-  View,
-  SafeAreaView
-} from "react-native";
+import { useQuery, useMutation } from "@apollo/react-hooks";
+import { StyleSheet, Text, View } from "react-native";
 import {
   Button,
   Container,
   Header,
   Content,
   Form,
-  Item,
-  Input,
-  Label,
   Left,
   Body,
   Right,
   Title,
-  Picker,
-  Icon
+  Icon,
+  Toast 
 } from "native-base";
-import SearchableDropdown from 'react-native-searchable-dropdown';
+
 import * as queries from "../graphql/queries";
+import * as mutations from "../graphql/mutations";
+import { Dropdown } from "react-native-material-dropdown";
 
 function Event(props) {
   const {
@@ -33,22 +25,19 @@ function Event(props) {
     categorieData,
     groupeData,
     matiereData,
-    responsableData,
+    responsableData
   } = props;
 
-  let categorie = "";
-  let responsable = "";
-  let matiere = "";
-  let groupeParticipants = "";
-  let evenement = [];
-
   const [state, setState] = useState({
-    
+    categorie: "",
+    responsable: "",
+    matiere: "",
+    groupeParticipants: "",
+    showToast: false
   });
 
-  const { loading, data } = useQuery(queries.ALL_DATA, {
+  const {} = useQuery(queries.ALL_DATA, {
     onCompleted: data => {
-      
       const categories = data.categories;
       actions.setCategorie({
         listCategorie: categories
@@ -68,49 +57,98 @@ function Event(props) {
       actions.setResponsable({
         listResponsable: responsables
       });
-    },
+    }
   });
 
-  function _addEvent() {
-    let month = new Date().getMonth() + 1;
-      evenement = [
-        {
-          categorie: categorie,
-          responsable: responsable,
-          matiere:matiere,
-          participants: groupeParticipants,
-          date: new Date().getHours() +':'+
-                new Date().getMinutes() +' '+
-                new Date().getDate() +'-'+
-                month +'-'+
-                new Date().getFullYear()
-        }
-      ];
-    
-    console.log(evenement);
-  
-    props.navigation.navigate("EventList", { evenement: evenement });
-  }
+  const [createEvent] = useMutation(mutations.CREATE_EVENT, {
+    onCompleted: onCompleteMutation
+  });
 
   let dataFormCategorie = [];
   for (const property in categorieData.listCategorie) {
-    dataFormCategorie.push({name : categorieData.listCategorie[property].nomCategorie, id : property})
+    dataFormCategorie.push({
+      value: categorieData.listCategorie[property].nomCategorie,
+      id: categorieData.listCategorie[property].id
+    });
   }
 
   let dataFormResponsable = [];
   let r = responsableData.listResponsable;
   for (const property in r) {
-    dataFormResponsable.push({name : r[property].individu.nom +' '+ r[property].individu.prenom, id : property})
+    dataFormResponsable.push({
+      value: r[property].individu.nom + " " + r[property].individu.prenom,
+      id: r[property].id
+    });
   }
 
   let dataFormMatiere = [];
   for (const property in matiereData.listMatiere) {
-    dataFormMatiere.push({name : matiereData.listMatiere[property].nomMatiere, id : property})
+    dataFormMatiere.push({
+      value: matiereData.listMatiere[property].nomMatiere,
+      id: matiereData.listMatiere[property].id
+    });
   }
 
   let dataFormGroupeParticipants = [];
   for (const property in groupeData.listGroupe) {
-    dataFormGroupeParticipants.push({name : groupeData.listGroupe[property].nomGroupeParticipant, id : property})
+    dataFormGroupeParticipants.push({
+      value: groupeData.listGroupe[property].nomGroupeParticipant,
+      id: groupeData.listGroupe[property].id
+    });
+  }
+
+  function createObjectEvent() {
+    let evenement = {};
+    let month = new Date().getMonth() + 1;
+
+    if (
+      state.categorie !== "" &&
+      state.responsable !== "" &&
+      state.matiere !== "" &&
+      state.groupeParticipants !== ""
+    ) {
+      dataFormCategorie.forEach(categorie => {
+        if (categorie.value === state.categorie)
+          evenement.categorie = categorie.id;
+      });
+
+      dataFormResponsable.forEach(responsable => {
+        if (responsable.value === state.responsable)
+          evenement.responsables = [responsable.id];
+      });
+
+      dataFormMatiere.forEach(matiere => {
+        if (matiere.value === state.matiere) evenement.matiere = matiere.id;
+      });
+
+      dataFormGroupeParticipants.forEach(groupe => {
+        if (groupe.value === state.groupeParticipants)
+          evenement.groupeParticipants = [groupe.id];
+      });
+      Toast.show({
+        text: "Evenement crée !",
+        buttonText: "Okay",
+        type: "success"
+      })
+      //props.navigation.navigate("EventList", { evenement: evenement });
+      return evenement;
+    } else {
+      Toast.show({
+        text: "completez les champs !",
+        buttonText: "Okay",
+        type: "danger"
+      })
+    }
+  }
+
+  function handleSubmit(event) {
+    const evenement = createObjectEvent();
+    createEvent({ variables: evenement });
+  }
+
+  function onCompleteMutation(data) {
+    const event = data.createEvent.evenement;
+    actions.addEvenement({ event });
   }
 
   return (
@@ -122,179 +160,46 @@ function Event(props) {
         </Body>
         <Right />
       </Header>
-      <Content>
+      <Content padder>
         <Form style={styles.form}>
           <View style={styles.item}>
+            <Dropdown
+              label="Categorie"
+              data={dataFormCategorie}
+              onChangeText={value => {
+                setState({ ...state, categorie: value });
+              }}
+            />
+          </View>
+          <View style={styles.item}>
+            <Dropdown
+              label="Responsable"
+              data={dataFormResponsable}
+              onChangeText={value => {
+                setState({ ...state, responsable: value });
+              }}
+            />
+          </View>
+          <View style={styles.item}>
+            <Dropdown
+              label="Matiere"
+              data={dataFormMatiere}
+              onChangeText={value => {
+                setState({ ...state, matiere: value });
+              }}
+            />
+          </View>
+          <View style={styles.item}>
+            <Dropdown
+              label="Participants"
+              data={dataFormGroupeParticipants}
+              onChangeText={value => {
+                setState({ ...state, groupeParticipants: value });
+              }}
+            />
+          </View>
 
-          <SearchableDropdown
-            multi={false}
-            onItemSelect={(item) => {
-              categorie = item.name;
-            }}
-            containerStyle={{ padding: 5 }}
-            itemStyle={{
-              padding: 10,
-              marginTop: 2,
-              backgroundColor: '#ddd',
-              borderColor: '#bbb',
-              borderWidth: 1,
-              borderRadius: 5,
-            }}
-            itemTextStyle={{ color: '#222' }}
-            itemsContainerStyle={{ maxHeight: 140 }}
-            items={dataFormCategorie}
-            defaultIndex={2}
-            chip={true}
-            resetValue={false}
-            textInputProps={
-              {
-                placeholder: "Categorie",
-                underlineColorAndroid: "transparent",
-                style: {
-                    padding: 12,
-                    borderWidth: 1,
-                    borderColor: '#ccc',
-                    borderRadius: 5,
-                },
-              }
-            }
-            listProps={
-              {
-                nestedScrollEnabled: true,
-              }
-            }
-          />
-          </View>
-          <View style={styles.item}>
-          
-          <SearchableDropdown
-            multi={false}
-            onItemSelect={(item) => {
-              responsable = item.name;
-            }}
-            containerStyle={{ padding: 5 }}
-            itemStyle={{
-              padding: 10,
-              marginTop: 2,
-              backgroundColor: '#ddd',
-              borderColor: '#bbb',
-              borderWidth: 1,
-              borderRadius: 5,
-            }}
-            itemTextStyle={{ color: '#222' }}
-            itemsContainerStyle={{ maxHeight: 140 }}
-            items={dataFormResponsable}
-            defaultIndex={2}
-            chip={true}
-            resetValue={false}
-            textInputProps={
-              {
-                placeholder: "Responsable",
-                underlineColorAndroid: "transparent",
-                style: {
-                    padding: 12,
-                    borderWidth: 1,
-                    borderColor: '#ccc',
-                    borderRadius: 5,
-                },
-                //onTextChange: text => alert(text)
-              }
-            }
-            listProps={
-              {
-                nestedScrollEnabled: true,
-              }
-            }
-          />
-          </View>
-          <View style={styles.item}>
-          <SearchableDropdown
-            multi={false}
-            onItemSelect={(item) => {
-              matiere = item.name;
-            }}
-            containerStyle={{ padding: 5 }}
-            itemStyle={{
-              padding: 10,
-              marginTop: 2,
-              backgroundColor: '#ddd',
-              borderColor: '#bbb',
-              borderWidth: 1,
-              borderRadius: 5,
-            }}
-            itemTextStyle={{ color: '#222' }}
-            itemsContainerStyle={{ maxHeight: 140 }}
-            items={dataFormMatiere}
-            defaultIndex={2}
-            chip={true}
-            resetValue={false}
-            textInputProps={
-              {
-                placeholder: "Matiere",
-                underlineColorAndroid: "transparent",
-                style: {
-                    padding: 12,
-                    borderWidth: 1,
-                    borderColor: '#ccc',
-                    borderRadius: 5,
-                },
-                //onTextChange: text => alert(text)
-              }
-            }
-            listProps={
-              {
-                nestedScrollEnabled: true,
-              }
-            }
-          />
-          </View>
-          <View style={styles.item}>
-          <SearchableDropdown
-            multi={false}
-            onItemSelect={(item) => {
-              groupeParticipants = item.name;
-            }}
-            containerStyle={{ padding: 5 }}
-            itemStyle={{
-              padding: 10,
-              marginTop: 2,
-              backgroundColor: '#ddd',
-              borderColor: '#bbb',
-              borderWidth: 1,
-              borderRadius: 5,
-            }}
-            itemTextStyle={{ color: '#222' }}
-            itemsContainerStyle={{ maxHeight: 140 }}
-            items={dataFormGroupeParticipants}
-            defaultIndex={2}
-            chip={true}
-            resetValue={false}
-            textInputProps={
-              {
-                placeholder: "Participants",
-                underlineColorAndroid: "transparent",
-                style: {
-                    padding: 12,
-                    borderWidth: 1,
-                    borderColor: '#ccc',
-                    borderRadius: 5,
-                },
-                //onTextChange: text => alert(text)
-              }
-            }
-            listProps={
-              {
-                nestedScrollEnabled: true,
-              }
-            }
-          />
-          </View>
-          <Button
-            style={styles.button}
-            rounded
-            iconLeft
-            onPress={() => _addEvent()}
-          >
+          <Button style={styles.button} rounded iconLeft onPress={handleSubmit}>
             <Text style={styles.text}>CONFIRMER</Text>
             <Icon name="paper-plane" />
           </Button>
@@ -316,11 +221,11 @@ const styles = StyleSheet.create({
     justifyContent: "center"
   },
   item: {
-    marginTop: 40,
-    width: 350,
+    marginTop: 20,
+    width: 350
   },
   button: {
-    marginTop: 40,
+    marginTop: 50,
     marginBottom: 20,
     padding: 15
   },

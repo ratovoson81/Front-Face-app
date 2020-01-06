@@ -5,9 +5,8 @@ import { createAppContainer } from "react-navigation";
 import { createStackNavigator } from "react-navigation-stack";
 import { createBottomTabNavigator } from "react-navigation-tabs";
 import Event from "../redux/containers/EventCtn";
-import AutrePage from "./AutrePage";
-import EventList from "../components/EventList";
-import EventDetail from "../components/EvenDetail";
+import EventList from "../redux/containers/EventListCtn";
+import EventDetail from "../components/EventDetail";
 import Presence from "../components/Presence";
 
 const EventStackNavigator = createStackNavigator({
@@ -38,11 +37,23 @@ const EventStackNavigator = createStackNavigator({
   }
 });
 
-const AutrePageStackNavigator = createStackNavigator({
-  AutrePage: {
-    screen: AutrePage,
+const EventListStackNavigator = createStackNavigator({
+  EventList: {
+    screen: EventList,
     navigationOptions: {
-      title: "AutrePage"
+      title: "EventList"
+    }
+  },
+  EventDetail: {
+    screen: EventDetail,
+    navigationOptions: {
+      title: "EventDetail"
+    }
+  },
+  Presence: {
+    screen: Presence,
+    navigationOptions: {
+      title: "Presence"
     }
   }
 });
@@ -59,8 +70,8 @@ const TabNavigator = createBottomTabNavigator(
         }
       }
     },
-    AutrePage: {
-      screen: AutrePageStackNavigator,
+    EventList: {
+      screen: EventListStackNavigator,
       navigationOptions: {
         tabBarIcon: () => {
           return (
