@@ -38,7 +38,6 @@ function EventList(props) {
   }
 
   function _displayStatus(event) {
-    console.log("\n\nEVENEMENT ===> \n", event, "\n\n");
     let status = "";
     const dateDebut = event.dateDebut;
     const dateFin = event.dateFin;
@@ -65,9 +64,10 @@ function EventList(props) {
           data={evenementData.listEvenement}
           keyExtractor={item => item.id.toString()}
           renderItem={({ item }) => (
-            <TouchableOpacity 
-            style={styles.main_container}
-            onPress={() => EventDetail(item)}>
+            <TouchableOpacity
+              style={styles.main_container}
+              onPress={() => EventDetail(item)}
+            >
               <View style={styles.content_container}>
                 <View style={styles.header_container}>
                   <Text style={styles.categorie}>

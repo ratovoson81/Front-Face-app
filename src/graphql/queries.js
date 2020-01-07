@@ -9,8 +9,8 @@ export const ALL_DATA = gql`
     groupeParticipants {
       id
       nomGroupeParticipant
-     }
-     matieres {
+    }
+    matieres {
       id
       nomMatiere
     }
@@ -22,36 +22,50 @@ export const ALL_DATA = gql`
         prenom
       }
     }
-    evenements{
+    evenements {
       id
-      categorie{
+      categorie {
         nomCategorie
       }
-      matiere{
+      matiere {
         nomMatiere
       }
-      responsables{
-        individu{
+      responsables {
+        individu {
           id
           nom
           prenom
         }
       }
-      presences{
+      presences {
         id
-        individu{
+        individu {
           nom
           prenom
         }
         niveau
         parcours
       }
-      groupeParticipants{
+      groupeParticipants {
         id
         nomGroupeParticipant
       }
       dateDebut
       dateFin
+    }
+  }
+`;
+
+export const GP_MEMBERS = gql`
+  query GpMembers($gpId: ID!) {
+    gpMembers(gpId: $gpId) {
+      id
+      individu {
+        nom
+        prenom
+      }
+      niveau
+      parcours
     }
   }
 `;
