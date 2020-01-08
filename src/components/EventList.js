@@ -20,18 +20,7 @@ import {
 } from "native-base";
 
 function EventList(props) {
-  const { actions, evenementData } = props;
-
-  const [state, setState] = useState({});
-
-  const { loading, data } = useQuery(queries.ALL_DATA, {
-    onCompleted: data => {
-      const evenements = data.evenements;
-      actions.setEvenement({
-        listEvenement: evenements
-      });
-    }
-  });
+  const { loading, data } = useQuery(queries.ALL_DATA);
 
   function EventDetail(item) {
     props.navigation.navigate("EventDetail", { item: item });
@@ -49,6 +38,8 @@ function EventList(props) {
     return <Text>{status}</Text>;
   }
 
+  if (loading) return <View></View>;
+
   return (
     <Container>
       <Header>
@@ -61,7 +52,7 @@ function EventList(props) {
       <Content>
         <FlatList
           style={styles.list}
-          data={evenementData.listEvenement}
+          data={data.evenements}
           keyExtractor={item => item.id.toString()}
           renderItem={({ item }) => (
             <TouchableOpacity
