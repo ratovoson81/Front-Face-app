@@ -1,5 +1,6 @@
-import React, { useState } from "react";
+import React, { useEffect } from "react";
 import { useQuery } from "@apollo/react-hooks";
+import { withNavigationFocus } from "react-navigation";
 import * as queries from "../graphql/queries";
 import {
   View,
@@ -20,7 +21,11 @@ import {
 } from "native-base";
 
 function EventList(props) {
-  const { loading, data } = useQuery(queries.ALL_DATA);
+  const { loading, data, refetch } = useQuery(queries.ALL_DATA);
+
+  useEffect(() => {
+    refetch();
+  });
 
   function EventDetail(item) {
     props.navigation.navigate("EventDetail", { item: item });
@@ -148,4 +153,4 @@ const styles = StyleSheet.create({
   }
 });
 
-export default EventList;
+export default withNavigationFocus(EventList);

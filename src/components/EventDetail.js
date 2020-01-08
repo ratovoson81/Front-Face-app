@@ -37,7 +37,9 @@ function EventDetail({ navigation }) {
     variables: { idEvent: idEvent }
   });
 
-  const [setEvent] = useMutation(mutations.SET_EVENT);
+  const [setEvent] = useMutation(mutations.SET_EVENT, {
+    refetchQueries: [{ query: queries.ALL_DATA }]
+  });
 
   const [state, setState] = useState({
     tableHead: ["Num", "Nom prenom", "Parcours", "Presence"],
@@ -52,10 +54,12 @@ function EventDetail({ navigation }) {
   function startEvent() {
     const dateDebut = new Date(Date.now());
     setEvent({ variables: { dateDebut: dateDebut, idEvent: idEvent } });
+    setState({ ...state, active: false });
   }
 
   function cancelEvent() {
     setEvent({ variables: { cancel: true, idEvent: idEvent } });
+    setState({ ...state, active: false });
   }
 
   function generateTableData() {
