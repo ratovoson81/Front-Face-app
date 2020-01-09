@@ -7,13 +7,14 @@ import { useMutation } from "@apollo/react-hooks";
 
 import gql from "graphql-tag";
 
-function Presence() {
+function Presence({ navigation }) {
+  const idEvent = navigation.state.params.idEvent;
   const [hasPermission, setHasPermission] = useState(null);
   const [type, setType] = useState(Camera.Constants.Type.back);
 
   const MUTATION = gql`
-    mutation($file: Upload!) {
-      compareImage(file: $file) {
+    mutation($file: Upload!, $eventId: ID!) {
+      compareImage(file: $file, eventId: $eventId) {
         present
       }
     }
@@ -34,7 +35,7 @@ function Presence() {
         name: "temp",
         type: "image/jpeg"
       });
-      const response = mutate({ variables: { file } });
+      const response = mutate({ variables: { file, eventId: idEvent } });
       console.log({ response });
     });
   }

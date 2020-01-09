@@ -1,6 +1,7 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { View, Text, StyleSheet, ScrollView } from "react-native";
 import { useQuery, useMutation } from "@apollo/react-hooks";
+import { withNavigationFocus } from "react-navigation";
 import {
   Button,
   Container,
@@ -33,7 +34,7 @@ function UserIcon({ color }) {
 function EventDetail({ navigation }) {
   const { id: idEvent } = navigation.state.params.item;
 
-  const { loading, data } = useQuery(queries.EVENEMENT, {
+  const { loading, data, refetch } = useQuery(queries.EVENEMENT, {
     variables: { idEvent: idEvent }
   });
 
@@ -47,8 +48,12 @@ function EventDetail({ navigation }) {
     active: false
   });
 
+  useEffect(() => {
+    refetch();
+  });
+
   function presence() {
-    navigation.navigate("Presence");
+    navigation.navigate("Presence", { idEvent: idEvent });
   }
 
   function startEvent() {
@@ -62,8 +67,20 @@ function EventDetail({ navigation }) {
     setState({ ...state, active: false });
   }
 
+  function verifPresence(membre, listePresence) {
+    let present = false;
+    listePresence.forEach(item => {
+      if (item.id === membre.id) {
+        present = true;
+        return present;
+      }
+    });
+    return present;
+  }
+
   function generateTableData() {
     const event = data.evenement;
+    const listPresence = data.evenement.presences;
     const responsable = event.responsables[0];
     const tableData = [];
     let rowData = [];
@@ -74,7 +91,7 @@ function EventDetail({ navigation }) {
       rowData.push(`${membre.individu.nom} ${membre.individu.prenom}`);
       rowData.push(`${membre.niveau} ${membre.parcours}`);
       rowData.push(
-        membre.present ? (
+        verifPresence(membre, listPresence) ? (
           <View style={styles.iconPresence}>
             <UserIcon color="#2BE320" />
           </View>
@@ -240,4 +257,4 @@ const styles = StyleSheet.create({
   }
 });
 
-export default EventDetail;
+export default withNavigationFocus(EventDetail);
