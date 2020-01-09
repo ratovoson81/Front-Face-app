@@ -69,3 +69,52 @@ export const GP_MEMBERS = gql`
     }
   }
 `;
+
+export const EVENEMENT = gql`
+  query Evenement($idEvent: ID) {
+    evenement(idEvent: $idEvent) {
+      id
+      categorie {
+        id
+        nomCategorie
+      }
+      matiere {
+        id
+        nomMatiere
+      }
+      responsables {
+        id
+        individu {
+          id
+          nom
+          prenom
+        }
+      }
+      presences {
+        id
+        individu {
+          id
+          nom
+          prenom
+        }
+        niveau
+        parcours
+      }
+      groupeParticipants {
+        id
+        nomGroupeParticipant
+        membres {
+          id
+          individu {
+            nom
+            prenom
+          }
+          niveau
+          parcours
+        }
+      }
+      dateDebut
+      dateFin
+    }
+  }
+`;

@@ -1,6 +1,7 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { View, Text, StyleSheet, ScrollView } from "react-native";
-import { useQuery } from "@apollo/react-hooks";
+import { useQuery, useMutation } from "@apollo/react-hooks";
+import { withNavigationFocus } from "react-navigation";
 import {
   Button,
   Container,
@@ -24,91 +25,73 @@ import {
 } from "react-native-table-component";
 
 import * as queries from "../graphql/queries";
+import * as mutations from "../graphql/mutations";
 
 function UserIcon({ color }) {
   return <Icon name="person" style={{ color: color }} />;
 }
 
 function EventDetail({ navigation }) {
-  const {
-    id: idEvent,
-    presences,
-    groupeParticipants,
-    matiere,
-    responsables
-  } = navigation.state.params.item;
+  const { id: idEvent } = navigation.state.params.item;
 
-  const {} = useQuery(queries.GP_MEMBERS, {
-    variables: { gpId: groupeParticipants[0].id },
-    onCompleted: onGpMembersCompleted
+  const { loading, data, refetch } = useQuery(queries.EVENEMENT, {
+    variables: { idEvent: idEvent }
+  });
+
+  const [setEvent] = useMutation(mutations.SET_EVENT, {
+    refetchQueries: [{ query: queries.ALL_DATA }]
   });
 
   const [state, setState] = useState({
     tableHead: ["Num", "Nom prenom", "Parcours", "Presence"],
     widthArr: [40, 130, 90, 80],
-    active: false,
-    event: {
-      start: false,
-      id: idEvent,
-      presences: presences,
-      groupeParticipants: groupeParticipants,
-      matiere: matiere,
-      responsables: responsables,
-      dateDebut: null,
-      dateFin: null
-    }
+    active: false
+  });
+
+  useEffect(() => {
+    refetch();
   });
 
   function presence() {
-    navigation.navigate("Presence");
-  }
-
-  function onGpMembersCompleted(data) {
-    const etudiants = data.gpMembers;
-    const responsable = state.event.responsables[0];
-    responsable.present = false;
-    etudiants.forEach(etudiant => (etudiant.present = false));
-    setState({
-      ...state,
-      event: {
-        ...state.event,
-        presences: etudiants,
-        responsables: [responsable]
-      }
-    });
+    navigation.navigate("Presence", { idEvent: idEvent });
   }
 
   function startEvent() {
-    const event = state.event;
-    const dateDebut = Date.now();
-    setState({
-      ...state,
-      event: { ...event, dateDebut: dateDebut, start: true }
-    });
+    const dateDebut = new Date(Date.now());
+    setEvent({ variables: { dateDebut: dateDebut, idEvent: idEvent } });
+    setState({ ...state, active: false });
   }
 
   function cancelEvent() {
-    const event = state.event;
-    const dateDebut = null;
-    setState({
-      ...state,
-      event: { ...event, dateDebut: dateDebut, start: false }
+    setEvent({ variables: { cancel: true, idEvent: idEvent } });
+    setState({ ...state, active: false });
+  }
+
+  function verifPresence(membre, listePresence) {
+    let present = false;
+    listePresence.forEach(item => {
+      if (item.id === membre.id) {
+        present = true;
+        return present;
+      }
     });
+    return present;
   }
 
   function generateTableData() {
-    const event = state.event;
-    const responsable = state.event.responsables[0];
+    const event = data.evenement;
+    const listPresence = data.evenement.presences;
+    const responsable = event.responsables[0];
     const tableData = [];
     let rowData = [];
 
-    event.presences.forEach(etudiant => {
+    event.groupeParticipants[0].membres.forEach(membre => {
       rowData = [];
-      rowData.push(etudiant.id);
-      rowData.push(`${etudiant.individu.nom} ${etudiant.individu.prenom}`);
-      rowData.push(`${etudiant.niveau} ${etudiant.parcours}`);
+      rowData.push(membre.id);
+      rowData.push(`${membre.individu.nom} ${membre.individu.prenom}`);
+      rowData.push(`${membre.niveau} ${membre.parcours}`);
       rowData.push(
-        etudiant.present ? (
+        verifPresence(membre, listPresence) ? (
           <View style={styles.iconPresence}>
             <UserIcon color="#2BE320" />
           </View>
@@ -121,7 +104,7 @@ function EventDetail({ navigation }) {
       tableData.push(rowData);
     });
     rowData = [];
-    rowData.push(responsable.individu.id);
+    rowData.push(responsable.id);
     rowData.push(`${responsable.individu.nom} ${responsable.individu.prenom}`);
     rowData.push("responsable");
     rowData.push(
@@ -141,7 +124,7 @@ function EventDetail({ navigation }) {
   }
 
   function titleEvent() {
-    const event = state.event;
+    const event = data.evenement;
     const nomGroupeParticipant =
       event.groupeParticipants[0].nomGroupeParticipant;
     const nomMatiere = event.matiere.nomMatiere;
@@ -154,7 +137,9 @@ function EventDetail({ navigation }) {
       </View>
     );
   }
-  console.log(state.event.dateDebut);
+
+  if (loading) return <View></View>;
+
   return (
     <Container style={styles.allContainer}>
       <Header>
@@ -272,4 +257,4 @@ const styles = StyleSheet.create({
   }
 });
 
-export default EventDetail;
+export default withNavigationFocus(EventDetail);

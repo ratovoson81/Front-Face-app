@@ -67,3 +67,61 @@ export const CREATE_EVENT = gql`
     }
   }
 `;
+
+export const SET_EVENT = gql`
+  mutation SetEvent(
+    $categorie: ID
+    $dateDebut: DateTime
+    $dateFin: DateTime
+    $groupeParticipants: [ID]
+    $idEvent: ID!
+    $matiere: ID
+    $presences: [ID]
+    $responsables: [ID]
+    $cancel: Boolean
+  ) {
+    setEvent(
+      categorie: $categorie
+      dateDebut: $dateDebut
+      dateFin: $dateFin
+      groupeParticipants: $groupeParticipants
+      idEvent: $idEvent
+      matiere: $matiere
+      presences: $presences
+      responsables: $responsables
+      cancel: $cancel
+    ) {
+      evenement {
+        id
+        categorie {
+          nomCategorie
+        }
+        matiere {
+          nomMatiere
+        }
+        responsables {
+          individu {
+            id
+            nom
+            prenom
+          }
+        }
+        presences {
+          id
+          individu {
+            nom
+            prenom
+          }
+          niveau
+          parcours
+        }
+        groupeParticipants {
+          id
+          nomGroupeParticipant
+        }
+        dateDebut
+        dateFin
+      }
+    }
+  }
+`;
