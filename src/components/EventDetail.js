@@ -45,12 +45,18 @@ function EventDetail({ navigation }) {
   const [state, setState] = useState({
     tableHead: ["Num", "Nom prenom", "Parcours", "Presence"],
     widthArr: [40, 130, 90, 80],
-    active: false
+    active: false,
   });
 
   useEffect(() => {
     refetch();
   });
+
+  function showAlert() {
+    setState({
+      error: true
+    });
+  }
 
   function presence() {
     navigation.navigate("Presence", { idEvent: idEvent });
@@ -82,6 +88,7 @@ function EventDetail({ navigation }) {
     const event = data.evenement;
     const listPresence = data.evenement.presences;
     const responsable = event.responsables[0];
+    const dateFin = data.evenement.dateFin;
     const tableData = [];
     let rowData = [];
 
@@ -108,7 +115,7 @@ function EventDetail({ navigation }) {
     rowData.push(`${responsable.individu.nom} ${responsable.individu.prenom}`);
     rowData.push("responsable");
     rowData.push(
-      responsable.present ? (
+      dateFin ? (
         <View style={styles.iconPresence}>
           <UserIcon color="#2BE320" />
         </View>
@@ -130,6 +137,7 @@ function EventDetail({ navigation }) {
     const nomMatiere = event.matiere.nomMatiere;
     const nomResponsable = event.responsables[0].individu.nom;
     const prenomResponsable = event.responsables[0].individu.prenom;
+
     return (
       <View style={styles.title}>
         <Text>{`Fiche de présence ${nomGroupeParticipant}`}</Text>
@@ -180,6 +188,8 @@ function EventDetail({ navigation }) {
               </ScrollView>
             </View>
           </ScrollView>
+          <Text>{`Date de début ${ data.evenement.dateDebut}`}</Text>
+          <Text>{`Date de fin ${ data.evenement.dateFin}`}</Text>
         </View>
       </Content>
       <View style={styles.fab}>
