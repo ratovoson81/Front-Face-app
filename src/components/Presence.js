@@ -1,16 +1,21 @@
 import React, { useState, useEffect } from "react";
-import { Button, Image, Text, View, TouchableOpacity } from "react-native";
+import { Button, Image, Text, View, TouchableOpacity, Alert } from "react-native";
 import * as ImagePicker from "expo-image-picker";
 import { Camera } from "expo-camera";
 import { ReactNativeFile } from "apollo-upload-client";
 import { useMutation } from "@apollo/react-hooks";
-
+import AwesomeAlert from 'react-native-awesome-alerts';
 import gql from "graphql-tag";
+import EventDetail from "./EventDetail";
 
 function Presence({ navigation }) {
   const idEvent = navigation.state.params.idEvent;
   const [hasPermission, setHasPermission] = useState(null);
   const [type, setType] = useState(Camera.Constants.Type.back);
+
+  const [state, setState] = useState({
+    showAlert: false
+  });
 
   const MUTATION = gql`
     mutation($file: Upload!, $eventId: ID!) {
@@ -19,16 +24,40 @@ function Presence({ navigation }) {
       }
     }
   `;
-  const [mutate, { loading }] = useMutation(MUTATION);
+
+  function showAlert() {
+    setState({
+      showAlert: true
+    });
+  }
+
+  function hideAlert() {
+    setState({
+      showAlert: false
+    });
+  }
+
+  const [mutate, { loading }] = useMutation(MUTATION, { onError: function(error) {
+    navigation.goBack();
+    Alert.alert(
+      'Résultat',
+      'Checking Error',
+    );
+  },
+  onCompleted: function() {
+    navigation.goBack();
+    Alert.alert(
+      'Résultat',
+      'Checking Success',
+    );
+}  
+ });
 
   if (loading) console.log("...loading");
 
-  const [state, setState] = useState({});
 
   async function takePicture() {
-    setState({
-      takeImageText: "... PROCESSING PICTURE ..."
-    });
+    showAlert()
     camera.takePictureAsync({ skipProcessing: true }).then(data => {
       const file = new ReactNativeFile({
         uri: data.uri,
@@ -36,7 +65,7 @@ function Presence({ navigation }) {
         type: "image/jpeg"
       });
       const response = mutate({ variables: { file, eventId: idEvent } });
-      console.log({ response });
+      console.log('reponse ici',{ response });
     });
   }
 
@@ -53,6 +82,7 @@ function Presence({ navigation }) {
   if (hasPermission === false) {
     return <Text>No access to camera</Text>;
   }
+
   return (
     <View style={{ flex: 1 }}>
       <Camera
@@ -103,7 +133,24 @@ function Presence({ navigation }) {
           </TouchableOpacity>
         </View>
       </Camera>
-      <View></View>
+      <AwesomeAlert
+          show={state.showAlert}
+          title="Traitement de l'image"
+          showProgress={true}
+          closeOnTouchOutside={false}
+          closeOnHardwareBackPress={false}
+          /*showCancelButton={true}
+          showConfirmButton={true}
+          cancelText="No, cancel"
+          confirmText="Yes, delete it"
+          confirmButtonColor="#DD6B55"
+          onCancelPressed={() => {
+            hideAlert();
+          }}
+          onConfirmPressed={() => {
+            hideAlert();
+          }}*/
+        />
     </View>
   );
 }
