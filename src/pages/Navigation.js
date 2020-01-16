@@ -6,7 +6,7 @@ import { createStackNavigator } from "react-navigation-stack";
 import { createBottomTabNavigator } from "react-navigation-tabs";
 import Event from "../redux/containers/EventCtn";
 import EventList from "../redux/containers/EventListCtn";
-import EventDetail from "../components/EventDetail";
+import EventDetail from "./EventDetail";
 import Presence from "../components/Presence";
 
 const EventStackNavigator = createStackNavigator({
@@ -17,11 +17,11 @@ const EventStackNavigator = createStackNavigator({
       title: "Face Recognition"
     }
   },
-    EventList: {
-      screen: EventList,
-      navigationOptions: {
-        title: "EventList"
-      }
+  EventList: {
+    screen: EventList,
+    navigationOptions: {
+      title: "EventList"
+    }
   },
   EventDetail: {
     screen: EventDetail,

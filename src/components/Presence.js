@@ -1,12 +1,19 @@
 import React, { useState, useEffect } from "react";
-import { Button, Image, Text, View, TouchableOpacity, Alert } from "react-native";
+import {
+  Button,
+  Image,
+  Text,
+  View,
+  TouchableOpacity,
+  Alert
+} from "react-native";
 import * as ImagePicker from "expo-image-picker";
 import { Camera } from "expo-camera";
 import { ReactNativeFile } from "apollo-upload-client";
 import { useMutation } from "@apollo/react-hooks";
-import AwesomeAlert from 'react-native-awesome-alerts';
+import AwesomeAlert from "react-native-awesome-alerts";
 import gql from "graphql-tag";
-import EventDetail from "./EventDetail";
+import EventDetail from "../pages/EventDetail";
 
 function Presence({ navigation }) {
   const idEvent = navigation.state.params.idEvent;
@@ -37,27 +44,21 @@ function Presence({ navigation }) {
     });
   }
 
-  const [mutate, { loading }] = useMutation(MUTATION, { onError: function(error) {
-    navigation.goBack();
-    Alert.alert(
-      'Résultat',
-      'Checking Error',
-    );
-  },
-  onCompleted: function() {
-    navigation.goBack();
-    Alert.alert(
-      'Résultat',
-      'Checking Success',
-    );
-}  
- });
+  const [mutate, { loading }] = useMutation(MUTATION, {
+    onError: function(error) {
+      navigation.goBack();
+      Alert.alert("Résultat", "Checking Error");
+    },
+    onCompleted: function() {
+      navigation.goBack();
+      Alert.alert("Résultat", "Checking Success");
+    }
+  });
 
   if (loading) console.log("...loading");
 
-
   async function takePicture() {
-    showAlert()
+    showAlert();
     camera.takePictureAsync({ skipProcessing: true }).then(data => {
       const file = new ReactNativeFile({
         uri: data.uri,
@@ -65,7 +66,7 @@ function Presence({ navigation }) {
         type: "image/jpeg"
       });
       const response = mutate({ variables: { file, eventId: idEvent } });
-      console.log('reponse ici',{ response });
+      console.log("reponse ici", { response });
     });
   }
 
@@ -134,12 +135,12 @@ function Presence({ navigation }) {
         </View>
       </Camera>
       <AwesomeAlert
-          show={state.showAlert}
-          title="Traitement de l'image"
-          showProgress={true}
-          closeOnTouchOutside={false}
-          closeOnHardwareBackPress={false}
-          /*showCancelButton={true}
+        show={state.showAlert}
+        title="Traitement de l'image"
+        showProgress={true}
+        closeOnTouchOutside={false}
+        closeOnHardwareBackPress={false}
+        /*showCancelButton={true}
           showConfirmButton={true}
           cancelText="No, cancel"
           confirmText="Yes, delete it"
@@ -150,7 +151,7 @@ function Presence({ navigation }) {
           onConfirmPressed={() => {
             hideAlert();
           }}*/
-        />
+      />
     </View>
   );
 }
