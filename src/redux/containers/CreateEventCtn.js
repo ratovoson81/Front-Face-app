@@ -1,19 +1,21 @@
 import { bindActionCreators } from "redux";
 import { connect } from "react-redux";
 
-import Event from "../../pages/Event";
+import CreateEvent from "../../pages/CreateEvent";
 import * as categorieActions from "../actions/categorieActions";
 import * as groupeActions from "../actions/groupeParticipantActions";
 import * as matiereActions from "../actions/matiereAction";
 import * as responsableActions from "../actions/responsableActions";
 import * as eventActions from "../actions/evenementActions";
+import * as asyncActions from "../redux-saga/asyncActions";
 
 const actions = {
   ...categorieActions,
   ...groupeActions,
   ...matiereActions,
   ...responsableActions,
-  ...eventActions
+  ...eventActions,
+  ...asyncActions
 };
 
 const mapStateToProps = state => ({
@@ -27,4 +29,4 @@ const mapDispatchToProps = dispatch => ({
   actions: bindActionCreators(actions, dispatch)
 });
 
-export default connect(mapStateToProps, mapDispatchToProps)(Event);
+export default connect(mapStateToProps, mapDispatchToProps)(CreateEvent);

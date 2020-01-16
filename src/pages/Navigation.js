@@ -4,14 +4,14 @@ import { StyleSheet, Image } from "react-native";
 import { createAppContainer } from "react-navigation";
 import { createStackNavigator } from "react-navigation-stack";
 import { createBottomTabNavigator } from "react-navigation-tabs";
-import Event from "../redux/containers/EventCtn";
+import CreateEvent from "../redux/containers/CreateEventCtn";
 import EventList from "../redux/containers/EventListCtn";
 import EventDetail from "./EventDetail";
 import Presence from "../components/Presence";
 
 const EventStackNavigator = createStackNavigator({
   Event: {
-    screen: Event,
+    screen: CreateEvent,
     navigationOptions: {
       //header: null,
       title: "Face Recognition"

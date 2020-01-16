@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import { useQuery, useMutation } from "@apollo/react-hooks";
+import React, { useState, useEffect } from "react";
+import { useMutation } from "@apollo/react-hooks";
 import { StyleSheet, Text, View } from "react-native";
 import {
   Button,
@@ -12,14 +12,13 @@ import {
   Right,
   Title,
   Icon,
-  Toast 
+  Toast
 } from "native-base";
 
-import * as queries from "../graphql/queries";
 import * as mutations from "../graphql/mutations";
 import { Dropdown } from "react-native-material-dropdown";
 
-function Event(props) {
+function CreateEvent(props) {
   const {
     actions,
     categorieData,
@@ -28,40 +27,16 @@ function Event(props) {
     responsableData
   } = props;
 
+  useEffect(() => {
+    actions.asyncGetEventData();
+  }, [actions]);
+
   const [state, setState] = useState({
     categorie: "",
     responsable: "",
     matiere: "",
     groupeParticipants: "",
     showToast: false
-  });
-
-  const {} = useQuery(queries.ALL_DATA, {
-    onCompleted: data => {
-      const categories = data.categories;
-      actions.setCategorie({
-        listCategorie: categories
-      });
-
-      const groupes = data.groupeParticipants;
-      actions.setGroupe({
-        listGroupe: groupes
-      });
-
-      const matieres = data.matieres;
-      actions.setMatiere({
-        listMatiere: matieres
-      });
-
-      const responsables = data.responsables;
-      actions.setResponsable({
-        listResponsable: responsables
-      });
-    }
-  });
-
-  const [createEvent] = useMutation(mutations.CREATE_EVENT, {
-    onCompleted: onCompleteMutation
   });
 
   let dataFormCategorie = [];
@@ -99,7 +74,6 @@ function Event(props) {
 
   function createObjectEvent() {
     let evenement = {};
-    let month = new Date().getMonth() + 1;
 
     if (
       state.categorie !== "" &&
@@ -129,7 +103,7 @@ function Event(props) {
         text: "Evenement crée !",
         buttonText: "Okay",
         type: "success"
-      })
+      });
       //props.navigation.navigate("EventList", { evenement: evenement });
       return evenement;
     } else {
@@ -137,13 +111,13 @@ function Event(props) {
         text: "completez les champs !",
         buttonText: "Okay",
         type: "danger"
-      })
+      });
     }
   }
 
-  function handleSubmit(event) {
-    const evenement = createObjectEvent();
-    createEvent({ variables: evenement });
+  function handleSubmit() {
+    const event = createObjectEvent();
+    actions.asyncCreateEvent({ event });
   }
 
   function onCompleteMutation(data) {
@@ -234,4 +208,4 @@ const styles = StyleSheet.create({
   }
 });
 
-export default Event;
+export default CreateEvent;
