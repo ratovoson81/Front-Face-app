@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from "react";
-import { useMutation } from "@apollo/react-hooks";
 import { StyleSheet, Text, View } from "react-native";
 import {
   Button,
@@ -14,8 +13,6 @@ import {
   Icon,
   Toast
 } from "native-base";
-
-import * as mutations from "../graphql/mutations";
 import { Dropdown } from "react-native-material-dropdown";
 
 function CreateEvent(props) {
@@ -26,11 +23,6 @@ function CreateEvent(props) {
     matiereData,
     responsableData
   } = props;
-
-  useEffect(() => {
-    actions.asyncGetEventData();
-  }, [actions]);
-
   const [state, setState] = useState({
     categorie: "",
     responsable: "",
@@ -38,6 +30,10 @@ function CreateEvent(props) {
     groupeParticipants: "",
     showToast: false
   });
+
+  useEffect(() => {
+    actions.asyncGetEventData();
+  }, [actions]);
 
   let dataFormCategorie = [];
   for (const property in categorieData.listCategorie) {
@@ -118,11 +114,6 @@ function CreateEvent(props) {
   function handleSubmit() {
     const event = createObjectEvent();
     actions.asyncCreateEvent({ event });
-  }
-
-  function onCompleteMutation(data) {
-    const event = data.createEvent.evenement;
-    actions.addEvenement({ event });
   }
 
   return (

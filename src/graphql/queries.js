@@ -31,6 +31,7 @@ export const ALL_DATA = gql`
         nomMatiere
       }
       responsables {
+        id
         individu {
           id
           nom
@@ -40,6 +41,7 @@ export const ALL_DATA = gql`
       presences {
         id
         individu {
+          id
           nom
           prenom
         }
@@ -52,6 +54,7 @@ export const ALL_DATA = gql`
         membres {
           id
           individu {
+            id
             nom
             prenom
           }

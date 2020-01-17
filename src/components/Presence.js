@@ -1,36 +1,44 @@
 import React, { useState, useEffect } from "react";
-import {
-  Button,
-  Image,
-  Text,
-  View,
-  TouchableOpacity,
-  Alert
-} from "react-native";
-import * as ImagePicker from "expo-image-picker";
+import { Text, View, TouchableOpacity, Alert } from "react-native";
 import { Camera } from "expo-camera";
 import { ReactNativeFile } from "apollo-upload-client";
 import { useMutation } from "@apollo/react-hooks";
 import AwesomeAlert from "react-native-awesome-alerts";
-import gql from "graphql-tag";
-import EventDetail from "../pages/EventDetail";
 
-function Presence({ navigation }) {
+import * as mutations from "../graphql/mutations";
+
+function Presence({ navigation, actions, event }) {
   const idEvent = navigation.state.params.idEvent;
   const [hasPermission, setHasPermission] = useState(null);
   const [type, setType] = useState(Camera.Constants.Type.back);
+  const [compareImage] = useMutation(mutations.COMPARE_IMAGE, {
+    onError: function(error) {
+      navigation.goBack();
+      Alert.alert("Résultat", "Checking Error");
+    },
+    onCompleted: function(data) {
+      const etudiant = data.compareImage.etudiant;
+      const present = data.compareImage.present;
 
+      actions.setEvenement({
+        newPresenceEntry: etudiant,
+        idEvent: event.id
+      });
+
+      navigation.goBack();
+      Alert.alert("Résultat", "Checking Success");
+    }
+  });
   const [state, setState] = useState({
     showAlert: false
   });
 
-  const MUTATION = gql`
-    mutation($file: Upload!, $eventId: ID!) {
-      compareImage(file: $file, eventId: $eventId) {
-        present
-      }
-    }
-  `;
+  useEffect(() => {
+    (async () => {
+      const { status } = await Camera.requestPermissionsAsync();
+      setHasPermission(status === "granted");
+    })();
+  }, []);
 
   function showAlert() {
     setState({
@@ -44,19 +52,6 @@ function Presence({ navigation }) {
     });
   }
 
-  const [mutate, { loading }] = useMutation(MUTATION, {
-    onError: function(error) {
-      navigation.goBack();
-      Alert.alert("Résultat", "Checking Error");
-    },
-    onCompleted: function() {
-      navigation.goBack();
-      Alert.alert("Résultat", "Checking Success");
-    }
-  });
-
-  if (loading) console.log("...loading");
-
   async function takePicture() {
     showAlert();
     camera.takePictureAsync({ skipProcessing: true }).then(data => {
@@ -65,17 +60,10 @@ function Presence({ navigation }) {
         name: "temp",
         type: "image/jpeg"
       });
-      const response = mutate({ variables: { file, eventId: idEvent } });
+      const response = compareImage({ variables: { file, eventId: idEvent } });
       console.log("reponse ici", { response });
     });
   }
-
-  useEffect(() => {
-    (async () => {
-      const { status } = await Camera.requestPermissionsAsync();
-      setHasPermission(status === "granted");
-    })();
-  }, []);
 
   if (hasPermission === null) {
     return <View />;

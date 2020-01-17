@@ -51,7 +51,7 @@ function EventDetail({ navigation, event }) {
   function verifPresence(membre, listePresence) {
     let present = false;
     listePresence.forEach(item => {
-      if (item.id === membre.id) {
+      if (item.individu.id === membre.individu.id) {
         present = true;
         return present;
       }
