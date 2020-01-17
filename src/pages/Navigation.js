@@ -6,7 +6,7 @@ import { createStackNavigator } from "react-navigation-stack";
 import { createBottomTabNavigator } from "react-navigation-tabs";
 import CreateEvent from "../redux/containers/CreateEventCtn";
 import EventList from "../redux/containers/EventListCtn";
-import EventDetail from "./EventDetail";
+import EventDetail from "../redux/containers/EventDetailCtn";
 import Presence from "../components/Presence";
 
 const EventStackNavigator = createStackNavigator({

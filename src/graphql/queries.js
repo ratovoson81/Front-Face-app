@@ -49,6 +49,15 @@ export const ALL_DATA = gql`
       groupeParticipants {
         id
         nomGroupeParticipant
+        membres {
+          id
+          individu {
+            nom
+            prenom
+          }
+          niveau
+          parcours
+        }
       }
       dateDebut
       dateFin

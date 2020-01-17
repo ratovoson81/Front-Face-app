@@ -16,8 +16,9 @@ import {
   Title
 } from "native-base";
 
-function EventList({ navigation, evenementData }) {
+function EventList({ navigation, evenementData, actions }) {
   function EventDetail(item) {
+    actions.setEvenement({ selected: item.id });
     navigation.navigate("EventDetail", { item: item });
   }
 
