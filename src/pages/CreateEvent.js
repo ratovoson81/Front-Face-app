@@ -147,7 +147,6 @@ function CreateEvent(props) {
         type: "success"
       })
       //props.navigation.navigate("EventList", { evenement: evenement });
-      console.log("event",evenement)
 
       return evenement;
     } else {
@@ -156,7 +155,7 @@ function CreateEvent(props) {
         buttonText: "Okay",
         type: "danger"
       })
-      console.log("event",evenement)
+      return null
     }
   }
 
@@ -190,18 +189,11 @@ function CreateEvent(props) {
     }
   }
 
-  console.log("categorie",state.categorie);
-  console.log("responsable",state.responsable);
-  console.log("matiere",state.matiere);
-  console.log("participant",state.groupeParticipants);
-
-      });
-    }
-  }
-
   function handleSubmit() {
     const event = createObjectEvent();
-    actions.asyncCreateEvent({ event });
+    if(event !== null){
+      actions.asyncCreateEvent({ event });
+    }
   }
 
   return (
