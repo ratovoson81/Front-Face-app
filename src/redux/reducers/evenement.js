@@ -12,6 +12,7 @@ const evenement = (state = initialState, action) => {
   let events;
   let idEvent;
   let newPresenceEntry;
+  let dateFin;
 
   switch (action.type) {
     case types.SET_EVENEMENT:
@@ -32,10 +33,17 @@ const evenement = (state = initialState, action) => {
         });
         newState.listEvenement = [...events];
       }
-      console.log(
-        newState.listEvenement,
-        "\n\n========================================="
-      );
+      if (payload.dateFin) {
+        dateFin = payload.dateFin;
+        idEvent = payload.idEvent;
+        events = state.listEvenement.map(event => {
+          if (event.id === idEvent) {
+            event.dateFin = dateFin;
+          }
+          return event;
+        });
+        newState.listEvenement = [...events];
+      }
       return newState;
 
     case types.ADD_EVENEMENT:

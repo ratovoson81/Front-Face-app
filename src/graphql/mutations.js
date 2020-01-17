@@ -130,6 +130,7 @@ export const COMPARE_IMAGE = gql`
   mutation($file: Upload!, $eventId: ID!) {
     compareImage(file: $file, eventId: $eventId) {
       present
+      dateFin
       etudiant {
         id
         individu {

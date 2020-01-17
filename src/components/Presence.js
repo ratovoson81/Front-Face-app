@@ -19,11 +19,22 @@ function Presence({ navigation, actions, event }) {
     onCompleted: function(data) {
       const etudiant = data.compareImage.etudiant;
       const present = data.compareImage.present;
+      const dateFin = data.compareImage.dateFin;
+      console.log(data);
 
-      actions.setEvenement({
-        newPresenceEntry: etudiant,
-        idEvent: event.id
-      });
+      if (present) {
+        if (etudiant) {
+          actions.setEvenement({
+            newPresenceEntry: etudiant,
+            idEvent: event.id
+          });
+        } else {
+          actions.setEvenement({
+            dateFin: dateFin,
+            idEvent: event.id
+          });
+        }
+      }
 
       navigation.goBack();
       Alert.alert("Résultat", "Checking Success");
@@ -61,7 +72,6 @@ function Presence({ navigation, actions, event }) {
         type: "image/jpeg"
       });
       const response = compareImage({ variables: { file, eventId: idEvent } });
-      console.log("reponse ici", { response });
     });
   }
 
