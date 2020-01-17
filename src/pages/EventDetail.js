@@ -1,7 +1,6 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { View, Text, StyleSheet, ScrollView } from "react-native";
-import { useQuery, useMutation } from "@apollo/react-hooks";
-import { withNavigationFocus } from "react-navigation";
+import { useMutation } from "@apollo/react-hooks";
 import {
   Button,
   Container,
@@ -14,15 +13,7 @@ import {
   Fab,
   Icon
 } from "native-base";
-import {
-  Table,
-  TableWrapper,
-  Row,
-  Rows,
-  Col,
-  Cols,
-  Cell
-} from "react-native-table-component";
+import { Table, Row } from "react-native-table-component";
 
 import * as queries from "../graphql/queries";
 import * as mutations from "../graphql/mutations";
@@ -31,32 +22,16 @@ function UserIcon({ color }) {
   return <Icon name="person" style={{ color: color }} />;
 }
 
-function EventDetail({ navigation }) {
+function EventDetail({ navigation, event }) {
   const { id: idEvent } = navigation.state.params.item;
-
-  const { loading, data, refetch } = useQuery(queries.EVENEMENT, {
-    variables: { idEvent: idEvent }
-  });
-
   const [setEvent] = useMutation(mutations.SET_EVENT, {
     refetchQueries: [{ query: queries.ALL_DATA }]
   });
-
   const [state, setState] = useState({
     tableHead: ["Num", "Nom prenom", "Parcours", "Presence"],
     widthArr: [40, 130, 90, 80],
-    active: false,
+    active: false
   });
-
-  useEffect(() => {
-    refetch();
-  });
-
-  function showAlert() {
-    setState({
-      error: true
-    });
-  }
 
   function presence() {
     navigation.navigate("Presence", { idEvent: idEvent });
@@ -76,7 +51,7 @@ function EventDetail({ navigation }) {
   function verifPresence(membre, listePresence) {
     let present = false;
     listePresence.forEach(item => {
-      if (item.id === membre.id) {
+      if (item.individu.id === membre.individu.id) {
         present = true;
         return present;
       }
@@ -85,10 +60,9 @@ function EventDetail({ navigation }) {
   }
 
   function generateTableData() {
-    const event = data.evenement;
-    const listPresence = data.evenement.presences;
+    const listPresence = event.presences;
     const responsable = event.responsables[0];
-    const dateFin = data.evenement.dateFin;
+    const dateFin = event.dateFin;
     const tableData = [];
     let rowData = [];
 
@@ -131,7 +105,6 @@ function EventDetail({ navigation }) {
   }
 
   function titleEvent() {
-    const event = data.evenement;
     const nomGroupeParticipant =
       event.groupeParticipants[0].nomGroupeParticipant;
     const nomMatiere = event.matiere.nomMatiere;
@@ -145,8 +118,6 @@ function EventDetail({ navigation }) {
       </View>
     );
   }
-
-  if (loading) return <View></View>;
 
   return (
     <Container style={styles.allContainer}>
@@ -188,8 +159,8 @@ function EventDetail({ navigation }) {
               </ScrollView>
             </View>
           </ScrollView>
-          <Text>{`Date de début ${ data.evenement.dateDebut}`}</Text>
-          <Text>{`Date de fin ${ data.evenement.dateFin}`}</Text>
+          <Text>{`Date de début ${event.dateDebut}`}</Text>
+          <Text>{`Date de fin ${event.dateFin}`}</Text>
         </View>
       </Content>
       <View style={styles.fab}>
@@ -267,4 +238,4 @@ const styles = StyleSheet.create({
   }
 });
 
-export default withNavigationFocus(EventDetail);
+export default EventDetail;

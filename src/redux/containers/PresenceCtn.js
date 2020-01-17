@@ -1,17 +1,18 @@
 import { bindActionCreators } from "redux";
 import { connect } from "react-redux";
 
-import EventList from "../../pages/EventList";
+import Presence from "../../components/Presence";
 import * as evenementActions from "../actions/evenementActions";
+import { getSelectedEvent } from "../../redux/selectors/selectors";
 
 const actions = { ...evenementActions };
 
 const mapStateToProps = state => ({
-  evenementData: state.evenement
+  event: getSelectedEvent(state)
 });
 
 const mapDispatchToProps = dispatch => ({
   actions: bindActionCreators(actions, dispatch)
 });
 
-export default connect(mapStateToProps, mapDispatchToProps)(EventList);
+export default connect(mapStateToProps, mapDispatchToProps)(Presence);

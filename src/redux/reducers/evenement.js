@@ -1,16 +1,49 @@
 import * as types from "../constants/eventActionTypes";
+import { includesObject } from "../../helpers";
 
 const initialState = {
-  listEvenement: []
+  listEvenement: [],
+  selected: null //id
 };
 
 const evenement = (state = initialState, action) => {
   let newState = { ...state };
   let payload;
+  let events;
+  let idEvent;
+  let newPresenceEntry;
+  let dateFin;
+
   switch (action.type) {
     case types.SET_EVENEMENT:
       payload = action.payload;
-      newState.listEvenement = payload.listEvenement;
+      if (payload.listEvenement) newState.listEvenement = payload.listEvenement;
+      if (payload.selected) newState.selected = payload.selected;
+      if (payload.newPresenceEntry) {
+        newPresenceEntry = payload.newPresenceEntry;
+        idEvent = payload.idEvent;
+        events = state.listEvenement.map(event => {
+          if (
+            event.id === idEvent &&
+            !includesObject(event.presences, newPresenceEntry.id)
+          ) {
+            event.presences.push(newPresenceEntry);
+          }
+          return event;
+        });
+        newState.listEvenement = [...events];
+      }
+      if (payload.dateFin) {
+        dateFin = payload.dateFin;
+        idEvent = payload.idEvent;
+        events = state.listEvenement.map(event => {
+          if (event.id === idEvent) {
+            event.dateFin = dateFin;
+          }
+          return event;
+        });
+        newState.listEvenement = [...events];
+      }
       return newState;
 
     case types.ADD_EVENEMENT:

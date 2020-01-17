@@ -1,7 +1,4 @@
-import React, { useEffect } from "react";
-import { useQuery } from "@apollo/react-hooks";
-import { withNavigationFocus } from "react-navigation";
-import * as queries from "../graphql/queries";
+import React from "react";
 import {
   View,
   Text,
@@ -10,7 +7,6 @@ import {
   FlatList
 } from "react-native";
 import {
-  Button,
   Container,
   Header,
   Content,
@@ -20,15 +16,10 @@ import {
   Title
 } from "native-base";
 
-function EventList(props) {
-  const { loading, data, refetch } = useQuery(queries.ALL_DATA);
-
-  useEffect(() => {
-    refetch();
-  });
-
+function EventList({ navigation, evenementData, actions }) {
   function EventDetail(item) {
-    props.navigation.navigate("EventDetail", { item: item });
+    actions.setEvenement({ selected: item.id });
+    navigation.navigate("EventDetail", { item: item });
   }
 
   function _displayStatus(event) {
@@ -43,8 +34,6 @@ function EventList(props) {
     return <Text>{status}</Text>;
   }
 
-  if (loading) return <View></View>;
-
   return (
     <Container>
       <Header>
@@ -57,7 +46,7 @@ function EventList(props) {
       <Content>
         <FlatList
           style={styles.list}
-          data={data.evenements}
+          data={evenementData.listEvenement}
           keyExtractor={item => item.id.toString()}
           renderItem={({ item }) => (
             <TouchableOpacity
@@ -153,4 +142,4 @@ const styles = StyleSheet.create({
   }
 });
 
-export default withNavigationFocus(EventList);
+export default EventList;
