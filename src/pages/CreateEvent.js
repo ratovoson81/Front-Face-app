@@ -15,7 +15,6 @@ import {
   Picker,
   Item 
 } from "native-base";
-
 import { Dropdown } from "react-native-material-dropdown";
 
 function CreateEvent(props) {
@@ -65,33 +64,9 @@ function CreateEvent(props) {
     });
   }
 
-  const {} = useQuery(queries.ALL_DATA, {
-    onCompleted: data => {
-      const categories = data.categories;
-      actions.setCategorie({
-        listCategorie: categories
-      });
-
-      const groupes = data.groupeParticipants;
-      actions.setGroupe({
-        listGroupe: groupes
-      });
-
-      const matieres = data.matieres;
-      actions.setMatiere({
-        listMatiere: matieres
-      });
-
-      const responsables = data.responsables;
-      actions.setResponsable({
-        listResponsable: responsables
-      });
-    }
-  });
-
-  const [createEvent] = useMutation(mutations.CREATE_EVENT, {
-    onCompleted: onCompleteMutation
-  });
+  useEffect(() => {
+    actions.asyncGetEventData();
+  }, [actions]);
 
   let dataFormCategorie = [];
   for (const property in categorieData.listCategorie) {
@@ -137,6 +112,7 @@ function CreateEvent(props) {
       state.responsable.length > 0 &&
       state.matiere !== "" &&
       state.groupeParticipants.length > 0
+
     ) {
       dataFormCategorie.forEach(categorie => {
         if (categorie.value === state.categorie)
@@ -172,6 +148,7 @@ function CreateEvent(props) {
       })
       //props.navigation.navigate("EventList", { evenement: evenement });
       console.log("event",evenement)
+
       return evenement;
     } else {
       Toast.show({
@@ -181,16 +158,6 @@ function CreateEvent(props) {
       })
       console.log("event",evenement)
     }
-  }
-
-  function handleSubmit(event) {
-    const evenement = createObjectEvent();
-    //createEvent({ variables: evenement });
-  }
-
-  function onCompleteMutation(data) {
-    const event = data.createEvent.evenement;
-    actions.addEvenement({ event });
   }
 
   function _addParticipant() {
@@ -227,6 +194,15 @@ function CreateEvent(props) {
   console.log("responsable",state.responsable);
   console.log("matiere",state.matiere);
   console.log("participant",state.groupeParticipants);
+
+      });
+    }
+  }
+
+  function handleSubmit() {
+    const event = createObjectEvent();
+    actions.asyncCreateEvent({ event });
+  }
 
   return (
     <Container style={styles.container}>
@@ -344,7 +320,6 @@ function CreateEvent(props) {
             <Text style={styles.text}>CONFIRMER</Text>
             <Icon name="paper-plane" />
           </Button>
-
         </Form>
       </Content>
     </Container>

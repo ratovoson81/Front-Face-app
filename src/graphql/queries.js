@@ -31,6 +31,7 @@ export const ALL_DATA = gql`
         nomMatiere
       }
       responsables {
+        id
         individu {
           id
           nom
@@ -40,6 +41,7 @@ export const ALL_DATA = gql`
       presences {
         id
         individu {
+          id
           nom
           prenom
         }
@@ -49,6 +51,16 @@ export const ALL_DATA = gql`
       groupeParticipants {
         id
         nomGroupeParticipant
+        membres {
+          id
+          individu {
+            id
+            nom
+            prenom
+          }
+          niveau
+          parcours
+        }
       }
       dateDebut
       dateFin

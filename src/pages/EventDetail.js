@@ -1,7 +1,6 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { View, Text, StyleSheet, ScrollView } from "react-native";
-import { useQuery, useMutation } from "@apollo/react-hooks";
-import { withNavigationFocus } from "react-navigation";
+import { useMutation } from "@apollo/react-hooks";
 import {
   Button,
   Container,
@@ -31,13 +30,8 @@ function UserIcon({ color }) {
   return <Icon name="person" style={{ color: color }} />;
 }
 
-function EventDetail({ navigation }) {
+function EventDetail({ navigation, event }) {
   const { id: idEvent } = navigation.state.params.item;
-
-  const { loading, data, refetch } = useQuery(queries.EVENEMENT, {
-    variables: { idEvent: idEvent }
-  });
-
   const [setEvent] = useMutation(mutations.SET_EVENT, {
     refetchQueries: [{ query: queries.ALL_DATA }]
   });
@@ -47,16 +41,6 @@ function EventDetail({ navigation }) {
     widthArr: [40, 210, 90, 70],
     active: false,
   });
-
-  useEffect(() => {
-    refetch();
-  });
-
-  function showAlert() {
-    setState({
-      error: true
-    });
-  }
 
   function presence() {
     navigation.navigate("Presence", { idEvent: idEvent });
@@ -76,7 +60,7 @@ function EventDetail({ navigation }) {
   function verifPresence(membre, listePresence) {
     let present = false;
     listePresence.forEach(item => {
-      if (item.id === membre.id) {
+      if (item.individu.id === membre.individu.id) {
         present = true;
         return present;
       }
@@ -85,10 +69,10 @@ function EventDetail({ navigation }) {
   }
 
   function generateTableData() {
-    const event = data.evenement;
-    const listPresence = data.evenement.presences;
-    const responsable = event.responsables;
-    const dateFin = data.evenement.dateFin;
+
+    const listPresence = event.presences;
+    const responsable = event.responsables[0];
+    const dateFin = event.dateFin;
     const tableData = [];
     let rowData = [];
 
@@ -112,7 +96,6 @@ function EventDetail({ navigation }) {
         tableData.push(rowData);
       });
     });
-
     responsable.forEach(responsable => {
       rowData = [];
       rowData.push(responsable.id);
@@ -131,7 +114,6 @@ function EventDetail({ navigation }) {
       );
       tableData.unshift(rowData);
     });
-
     return tableData;
   }
 
@@ -152,6 +134,7 @@ function EventDetail({ navigation }) {
       </View>
     );
   }
+
 
   function displayButtonStart() {
     if(!data.evenement.dateDebut)
@@ -279,4 +262,5 @@ const styles = StyleSheet.create({
   }
 });
 
-export default withNavigationFocus(EventDetail);
+export default EventDetail;
+
