@@ -6,35 +6,22 @@ import * as categorieActions from "../../actions/categorieActions";
 import * as groupeActions from "../../actions/groupeParticipantActions";
 import * as matiereActions from "../../actions/matiereAction";
 import * as responsableActions from "../../actions/responsableActions";
+import * as eventActions from "../../actions/evenementActions";
 
 function* getEventData() {
   const { data } = yield call(requests.getAllData);
-  const categories = data.categories;
-  const groupes = data.groupeParticipants;
-  const matieres = data.matieres;
-  const responsables = data.responsables;
+  const listCategorie = data.categories;
+  const listGroupe = data.groupeParticipants;
+  const listMatiere = data.matieres;
+  const listResponsable = data.responsables;
+  const listEvenement = data.evenements;
 
   yield all([
-    put(
-      categorieActions.setCategorie({
-        listCategorie: categories
-      })
-    ),
-    put(
-      groupeActions.setGroupe({
-        listGroupe: groupes
-      })
-    ),
-    put(
-      matiereActions.setMatiere({
-        listMatiere: matieres
-      })
-    ),
-    put(
-      responsableActions.setResponsable({
-        listResponsable: responsables
-      })
-    )
+    put(categorieActions.setCategorie({ listCategorie })),
+    put(groupeActions.setGroupe({ listGroupe })),
+    put(matiereActions.setMatiere({ listMatiere })),
+    put(responsableActions.setResponsable({ listResponsable })),
+    put(eventActions.setEvenement({ listEvenement }))
   ]);
 }
 
