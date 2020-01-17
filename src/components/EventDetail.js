@@ -44,7 +44,7 @@ function EventDetail({ navigation }) {
 
   const [state, setState] = useState({
     tableHead: ["Num", "Nom prenom", "Parcours", "Presence"],
-    widthArr: [40, 130, 90, 80],
+    widthArr: [40, 210, 90, 70],
     active: false,
   });
 
@@ -87,18 +87,39 @@ function EventDetail({ navigation }) {
   function generateTableData() {
     const event = data.evenement;
     const listPresence = data.evenement.presences;
-    const responsable = event.responsables[0];
+    const responsable = event.responsables;
     const dateFin = data.evenement.dateFin;
     const tableData = [];
     let rowData = [];
 
-    event.groupeParticipants[0].membres.forEach(membre => {
+    event.groupeParticipants.forEach(groupe => {
+      groupe.membres.forEach(membre => {
+        rowData = [];
+        rowData.push(membre.id);
+        rowData.push(`${membre.individu.nom} ${membre.individu.prenom}`);
+        rowData.push(`${membre.niveau} ${membre.parcours}`);
+        rowData.push(
+          verifPresence(membre, listPresence) ? (
+            <View style={styles.iconPresence}>
+              <UserIcon color="#2BE320" />
+            </View>
+          ) : (
+            <View style={styles.iconPresence}>
+              <UserIcon color="#D02A1E" />
+            </View>
+          )
+        );
+        tableData.push(rowData);
+      });
+    });
+
+    responsable.forEach(responsable => {
       rowData = [];
-      rowData.push(membre.id);
-      rowData.push(`${membre.individu.nom} ${membre.individu.prenom}`);
-      rowData.push(`${membre.niveau} ${membre.parcours}`);
+      rowData.push(responsable.id);
+      rowData.push(`${responsable.individu.nom} ${responsable.individu.prenom}`);
+      rowData.push("responsable");
       rowData.push(
-        verifPresence(membre, listPresence) ? (
+        dateFin ? (
           <View style={styles.iconPresence}>
             <UserIcon color="#2BE320" />
           </View>
@@ -108,61 +129,61 @@ function EventDetail({ navigation }) {
           </View>
         )
       );
-      tableData.push(rowData);
+      tableData.unshift(rowData);
     });
-    rowData = [];
-    rowData.push(responsable.id);
-    rowData.push(`${responsable.individu.nom} ${responsable.individu.prenom}`);
-    rowData.push("responsable");
-    rowData.push(
-      dateFin ? (
-        <View style={styles.iconPresence}>
-          <UserIcon color="#2BE320" />
-        </View>
-      ) : (
-        <View style={styles.iconPresence}>
-          <UserIcon color="#D02A1E" />
-        </View>
-      )
-    );
-    tableData.unshift(rowData);
 
     return tableData;
   }
 
   function titleEvent() {
     const event = data.evenement;
-    const nomGroupeParticipant =
-      event.groupeParticipants[0].nomGroupeParticipant;
     const nomMatiere = event.matiere.nomMatiere;
-    const nomResponsable = event.responsables[0].individu.nom;
-    const prenomResponsable = event.responsables[0].individu.prenom;
 
     return (
       <View style={styles.title}>
-        <Text>{`Fiche de présence ${nomGroupeParticipant}`}</Text>
-        <Text>{`${nomMatiere} ${nomResponsable} ${prenomResponsable}`}</Text>
+        <Text>{`Fiche de présence ${event.categorie.nomCategorie}`}</Text>
+        {event.groupeParticipants.map((v, index)=>{
+                    return <Text>{`Participants ${index + 1}: ${v.nomGroupeParticipant}`}</Text> 
+                })}
+        <Text>{`Matiere: ${nomMatiere}`}</Text>
+        {event.responsables.map((v, index)=>{
+                    return <Text>{`Responsable ${index + 1}: ${v.individu.nom} ${v.individu.prenom}`}</Text> 
+                })}
       </View>
     );
+  }
+
+  function displayButtonStart() {
+    if(!data.evenement.dateDebut)
+      return <Button style={{ backgroundColor: "#34A34F" }} onPress={startEvent}>
+      <Icon name="play" />
+    </Button>
+  }
+
+  function displayButtonCancel() {
+    if(data.evenement.dateDebut && !data.evenement.dateFin)
+      return <Button style={{ backgroundColor: "#DD5144" }} onPress={cancelEvent}>
+      <Icon name="square" />
+    </Button>
+  }
+
+  function displayButtonPresence() {
+    if(data.evenement.dateDebut && !data.evenement.dateFin)
+      return <Button style={{ backgroundColor: "#ffbb33"}}  onPress={() => presence()}>
+      <Icon name="camera" />
+    </Button>
   }
 
   if (loading) return <View></View>;
 
   return (
     <Container style={styles.allContainer}>
-      <Header>
-        <Left />
-        <Body>
-          <Title>Details evenenement </Title>
-        </Body>
-        <Right />
-      </Header>
       <Content style={styles.content}>
         <View style={styles.container}>
           {titleEvent()}
           <ScrollView horizontal={true}>
             <View>
-              <Table borderStyle={{ borderWidth: 1, borderColor: "#C1C0B9" }}>
+              <Table borderStyle={{ borderWidth: 1 }}>
                 <Row
                   data={state.tableHead}
                   widthArr={state.widthArr}
@@ -171,7 +192,7 @@ function EventDetail({ navigation }) {
                 />
               </Table>
               <ScrollView style={styles.dataWrapper}>
-                <Table borderStyle={{ borderWidth: 1, borderColor: "#C1C0B9" }}>
+                <Table borderStyle={{ borderWidth: 1 }}>
                   {generateTableData().map((rowData, index) => (
                     <Row
                       key={index}
@@ -179,7 +200,7 @@ function EventDetail({ navigation }) {
                       widthArr={state.widthArr}
                       style={[
                         styles.row,
-                        index % 2 && { backgroundColor: "#F7F6E7" }
+                        index % 2 && { }
                       ]}
                       textStyle={styles.text}
                     />
@@ -188,8 +209,10 @@ function EventDetail({ navigation }) {
               </ScrollView>
             </View>
           </ScrollView>
-          <Text>{`Date de début ${ data.evenement.dateDebut}`}</Text>
-          <Text>{`Date de fin ${ data.evenement.dateFin}`}</Text>
+          <View style={styles.date}>
+            <Text style={styles.date}>{`Date de début ${ data.evenement.dateDebut}`}</Text>
+            <Text style={styles.date}>{`Date de fin ${ data.evenement.dateFin}`}</Text>
+          </View>
         </View>
       </Content>
       <View style={styles.fab}>
@@ -202,18 +225,9 @@ function EventDetail({ navigation }) {
           onPress={() => setState({ ...state, active: !state.active })}
         >
           <Icon name="add" />
-          <Button style={{ backgroundColor: "#34A34F" }} onPress={startEvent}>
-            <Icon name="play" />
-          </Button>
-          <Button style={{ backgroundColor: "#DD5144" }} onPress={cancelEvent}>
-            <Icon name="square" />
-          </Button>
-          <Button
-            onPress={() => presence()}
-            style={{ backgroundColor: "#ffbb33" }}
-          >
-            <Icon name="camera" />
-          </Button>
+          {displayButtonStart()}
+          {displayButtonCancel()}
+          {displayButtonPresence()}
         </Fab>
       </View>
     </Container>
@@ -227,18 +241,13 @@ const styles = StyleSheet.create({
     padding: 15,
     maxWidth: 80
   },
-  text: {
-    color: "white"
-  },
   container: {
     flex: 1,
-    padding: 16,
     paddingTop: 20,
     backgroundColor: "#fff"
   },
   header: {
     height: 50,
-    backgroundColor: "#537791"
   },
   text: {
     textAlign: "center",
@@ -249,7 +258,6 @@ const styles = StyleSheet.create({
   },
   row: {
     height: 40,
-    backgroundColor: "#E7E6E1"
   },
   title: {
     marginBottom: 15,
@@ -264,6 +272,10 @@ const styles = StyleSheet.create({
     display: "flex",
     flexDirection: "row",
     justifyContent: "center"
+  },
+  date: {
+    marginTop: 10,
+    alignItems: "center"
   }
 });
 

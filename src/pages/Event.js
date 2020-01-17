@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useQuery, useMutation } from "@apollo/react-hooks";
-import { StyleSheet, Text, View } from "react-native";
+import { StyleSheet, Text, View, ScrollView, FlatList } from "react-native";
 import {
   Button,
   Container,
@@ -12,7 +12,9 @@ import {
   Right,
   Title,
   Icon,
-  Toast 
+  Toast,
+  Picker,
+  Item 
 } from "native-base";
 
 import * as queries from "../graphql/queries";
@@ -30,11 +32,41 @@ function Event(props) {
 
   const [state, setState] = useState({
     categorie: "",
-    responsable: "",
+    responsable: [],
     matiere: "",
-    groupeParticipants: "",
-    showToast: false
+    groupeParticipants : [],
+    showToast: false,
+    gp: "",
+    res: ""
   });
+
+  function onValueChangeC(value) {
+    setState({
+      ...state,
+      categorie: value
+    });
+  }
+
+  function onValueChangeR(value) {
+    setState({
+      ...state,
+      res: value
+    });
+  }
+
+  function onValueChangeM(value) {
+    setState({
+      ...state,
+      matiere: value
+    });
+  }
+
+  function onValueChangeP(value) {
+    setState({
+      ...state,
+      gp: value
+    });
+  }
 
   const {} = useQuery(queries.ALL_DATA, {
     onCompleted: data => {
@@ -99,13 +131,15 @@ function Event(props) {
 
   function createObjectEvent() {
     let evenement = {};
+    let idResponsable = [];
+    let idGp = [];
     let month = new Date().getMonth() + 1;
 
     if (
       state.categorie !== "" &&
-      state.responsable !== "" &&
+      state.responsable.length > 0 &&
       state.matiere !== "" &&
-      state.groupeParticipants !== ""
+      state.groupeParticipants.length > 0
     ) {
       dataFormCategorie.forEach(categorie => {
         if (categorie.value === state.categorie)
@@ -113,24 +147,34 @@ function Event(props) {
       });
 
       dataFormResponsable.forEach(responsable => {
-        if (responsable.value === state.responsable)
-          evenement.responsables = [responsable.id];
+        state.responsable.forEach(value => {
+          if (responsable.value === value){
+            idResponsable.push(responsable.id);
+          }
+        });
       });
+      evenement.responsables = idResponsable;
 
       dataFormMatiere.forEach(matiere => {
         if (matiere.value === state.matiere) evenement.matiere = matiere.id;
       });
 
       dataFormGroupeParticipants.forEach(groupe => {
-        if (groupe.value === state.groupeParticipants)
-          evenement.groupeParticipants = [groupe.id];
+        state.groupeParticipants.forEach(value => {
+          if (groupe.value === value){
+            idGp.push(groupe.id);
+          }
+        });
       });
+      evenement.groupeParticipants = idGp;
+
       Toast.show({
         text: "Evenement crée !",
         buttonText: "Okay",
         type: "success"
       })
       //props.navigation.navigate("EventList", { evenement: evenement });
+      console.log("event",evenement)
       return evenement;
     } else {
       Toast.show({
@@ -138,18 +182,54 @@ function Event(props) {
         buttonText: "Okay",
         type: "danger"
       })
+      console.log("event",evenement)
     }
   }
 
   function handleSubmit(event) {
     const evenement = createObjectEvent();
-    createEvent({ variables: evenement });
+    //createEvent({ variables: evenement });
   }
 
   function onCompleteMutation(data) {
     const event = data.createEvent.evenement;
     actions.addEvenement({ event });
   }
+
+  function _addParticipant() {
+    if(state.gp !== ""){
+      setState({ 
+        ...state,
+        groupeParticipants: state.groupeParticipants.concat(state.gp)
+      });
+    }else {
+      Toast.show({
+        text: "Slectionner un participants !",
+        buttonText: "Okay",
+        type: "danger"
+      })
+    }
+  }
+
+  function _addResponsable() {
+    if(state.res !== ""){
+      setState({ 
+        ...state,
+        responsable: state.responsable.concat(state.res)
+      });
+    } else{
+      Toast.show({
+        text: "Slectionner un Responsable !",
+        buttonText: "Okay",
+        type: "danger"
+      })
+    }
+  }
+
+  console.log("categorie",state.categorie);
+  console.log("responsable",state.responsable);
+  console.log("matiere",state.matiere);
+  console.log("participant",state.groupeParticipants);
 
   return (
     <Container style={styles.container}>
@@ -162,47 +242,112 @@ function Event(props) {
       </Header>
       <Content padder>
         <Form style={styles.form}>
-          <View style={styles.item}>
-            <Dropdown
-              label="Categorie"
-              data={dataFormCategorie}
-              onChangeText={value => {
-                setState({ ...state, categorie: value });
-              }}
-            />
-          </View>
-          <View style={styles.item}>
-            <Dropdown
-              label="Responsable"
-              data={dataFormResponsable}
-              onChangeText={value => {
-                setState({ ...state, responsable: value });
-              }}
-            />
-          </View>
-          <View style={styles.item}>
-            <Dropdown
-              label="Matiere"
-              data={dataFormMatiere}
-              onChangeText={value => {
-                setState({ ...state, matiere: value });
-              }}
-            />
-          </View>
-          <View style={styles.item}>
-            <Dropdown
-              label="Participants"
-              data={dataFormGroupeParticipants}
-              onChangeText={value => {
-                setState({ ...state, groupeParticipants: value });
-              }}
-            />
-          </View>
+            <Item picker style={styles.item}>
+              <Picker
+                mode="dropdown"
+                style={{ width: undefined }}
+                selectedValue={state.categorie}
+                onValueChange={onValueChangeC.bind(this)}
+              >
+                <Picker.Item value="" label='Catégorie' />
+                {dataFormCategorie.map((v,index)=>{
+                    return (<Picker.Item label={v.value} value={v.value} key={index}/>) 
+                })}
+              </Picker>
+            </Item>
+
+            <Item picker style={styles.item}>
+              <Picker
+                mode="dropdown"
+                style={{ width: undefined }}
+                placeholder="Responsable"
+                placeholderStyle={{ color: "#bfc6ea" }}
+                placeholderIconColor="#007aff"
+                selectedValue={state.res}
+                onValueChange={onValueChangeR.bind(this)}
+              >
+                <Picker.Item value="" label='Responsable' />
+                {dataFormResponsable.map((v,index)=>{
+                    return (<Picker.Item label={v.value} value={v.value} key={index}/>) 
+                })}
+              </Picker>
+              <Button info rounded onPress={() => _addResponsable()}>
+                <Icon name="add" />
+              </Button>
+            </Item>
+            <ScrollView style={{ flex: 1 }}>
+                <FlatList
+                  contentContainerStyle={styles.list}
+                  data={state.responsable}
+                  keyExtractor={item => item}
+                  renderItem={({ item }) => (
+                    <Button 
+                      bordered 
+                      rounded
+                      info
+                      style={styles.buttonList}
+                      >
+                      <Text style={{ color: "#33b5e5" }}>{item}</Text>
+                    </Button>
+                  )}
+                />
+              </ScrollView>
+              
+            <Item picker style={styles.item}>
+              <Picker
+                mode="dropdown"
+                style={{ width: undefined }}
+                selectedValue={state.matiere}
+                onValueChange={onValueChangeM.bind(this)}
+              >
+                <Picker.Item value="" label='Matiere' />
+                {dataFormMatiere.map((v,index)=>{
+                    return (<Picker.Item label={v.value} value={v.value} key={index}/>) 
+                })}
+              </Picker>
+            </Item>
+
+            <Item picker style={styles.item}>
+              <Picker
+                mode="dropdown"
+                style={{ width: undefined }}
+                selectedValue={state.gp}
+                onValueChange={onValueChangeP.bind(this)}
+              >
+                <Picker.Item value="" label='Participants' />
+                {dataFormGroupeParticipants.map((v,index)=>{
+                    return (<Picker.Item label={v.value} value={v.value} key={index}/>) 
+                })}
+              </Picker>
+            
+              <Button info rounded onPress={() => _addParticipant()}>
+                <Icon name="add" />
+              </Button>
+            </Item>
+
+            <ScrollView style={{ flex: 1 }}>
+                <FlatList
+                  contentContainerStyle={styles.list}
+                  data={state.groupeParticipants}
+                  keyExtractor={item => item}
+                  renderItem={({ item }) => (
+                    <Button 
+                      bordered 
+                      rounded
+                      info
+                      style={styles.buttonList}
+                      >
+                      <Text style={{ color: "#33b5e5" }}>{item}</Text>
+                    </Button>
+                  )}
+                />
+              </ScrollView>
 
           <Button style={styles.button} rounded iconLeft onPress={handleSubmit}>
             <Text style={styles.text}>CONFIRMER</Text>
             <Icon name="paper-plane" />
           </Button>
+
         </Form>
       </Content>
     </Container>
@@ -225,12 +370,22 @@ const styles = StyleSheet.create({
     width: 350
   },
   button: {
-    marginTop: 50,
+    marginTop: 30,
     marginBottom: 20,
     padding: 15
   },
+  buttonList: {
+    marginTop: 10,
+    marginRight: 5,
+    padding: 10
+  },
   text: {
     color: "white"
+  },
+  list: {
+    justifyContent: 'center',
+    flexDirection: 'row',
+    flexWrap: 'wrap',
   }
 });
 

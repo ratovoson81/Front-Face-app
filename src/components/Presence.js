@@ -1,20 +1,20 @@
 import React, { useState, useEffect } from "react";
 import { Button, Image, Text, View, TouchableOpacity, Alert } from "react-native";
-import * as ImagePicker from "expo-image-picker";
 import { Camera } from "expo-camera";
 import { ReactNativeFile } from "apollo-upload-client";
 import { useMutation } from "@apollo/react-hooks";
 import AwesomeAlert from 'react-native-awesome-alerts';
 import gql from "graphql-tag";
-import EventDetail from "./EventDetail";
+import { FontAwesome, Ionicons,MaterialCommunityIcons } from '@expo/vector-icons';
 
 function Presence({ navigation }) {
   const idEvent = navigation.state.params.idEvent;
   const [hasPermission, setHasPermission] = useState(null);
   const [type, setType] = useState(Camera.Constants.Type.back);
+  const [flashMode, setFlashMode] = useState(Camera.Constants.FlashMode.off);
 
   const [state, setState] = useState({
-    showAlert: false
+    showAlert: false,
   });
 
   const MUTATION = gql`
@@ -69,6 +69,20 @@ function Presence({ navigation }) {
     });
   }
 
+  function displayIconFlash() {
+    if (flashMode) {
+        return <Ionicons
+        name="ios-flash"
+        style={{ color: "#efd807", fontSize: 40}}
+    />;
+    } else {
+        return <Ionicons
+        name="ios-flash-off"
+        style={{ color: "#fff", fontSize: 40}}
+    />;
+    }
+}
+
   useEffect(() => {
     (async () => {
       const { status } = await Camera.requestPermissionsAsync();
@@ -86,6 +100,7 @@ function Presence({ navigation }) {
   return (
     <View style={{ flex: 1 }}>
       <Camera
+        flashMode={flashMode} 
         style={{ flex: 1 }}
         type={type}
         ref={ref => {
@@ -99,38 +114,56 @@ function Presence({ navigation }) {
             flexDirection: "row"
           }}
         >
-          <TouchableOpacity
-            style={{
-              flex: 0.1,
-              alignSelf: "flex-end",
-              alignItems: "center"
-            }}
-            onPress={() => {
-              setType(
-                type === Camera.Constants.Type.back
-                  ? Camera.Constants.Type.front
-                  : Camera.Constants.Type.back
-              );
-            }}
-          >
-            <Text style={{ fontSize: 18, marginBottom: 10, color: "white" }}>
-              {" "}
-              Flip{" "}
-            </Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={{
-              flex: 1,
-              alignItems: "flex-end",
-              flexDirection: "column-reverse"
-            }}
-            onPress={takePicture.bind()}
-          >
-            <Text style={{ fontSize: 18, marginBottom: 10, color: "white" }}>
-              {" "}
-              Take picture{" "}
-            </Text>
-          </TouchableOpacity>
+          <View style={{flex:1, flexDirection:"row",justifyContent:"space-between",margin:20}}>
+            <TouchableOpacity
+              style={{
+                alignSelf: 'flex-end',
+                alignItems: 'center',
+                backgroundColor: 'transparent',                  
+              }}
+              onPress={() => {
+                setFlashMode(
+                  flashMode === Camera.Constants.FlashMode.off
+                    ? Camera.Constants.FlashMode.on
+                    : Camera.Constants.FlashMode.off
+                );
+              }}
+              >
+              {displayIconFlash()}              
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={{
+                alignSelf: 'flex-end',
+                alignItems: 'center',
+                backgroundColor: 'transparent',
+              }}
+              onPress={takePicture.bind()}
+              >
+              <FontAwesome
+                  name="camera"
+                  style={{ color: "#fff", fontSize: 40}}
+              />
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={{
+                alignSelf: 'flex-end',
+                alignItems: 'center',
+                backgroundColor: 'transparent',
+              }}
+              onPress={() => {
+                setType(
+                  type === Camera.Constants.Type.back
+                    ? Camera.Constants.Type.front
+                    : Camera.Constants.Type.back
+                );
+              }}
+              >
+              <MaterialCommunityIcons
+                  name="camera-switch"
+                  style={{ color: "#fff", fontSize: 40}}
+              />
+            </TouchableOpacity>
+          </View>
         </View>
       </Camera>
       <AwesomeAlert

@@ -17,37 +17,19 @@ const EventStackNavigator = createStackNavigator({
       title: "Face Recognition"
     }
   },
-    EventList: {
-      screen: EventList,
-      navigationOptions: {
-        title: "EventList"
-      }
-  },
-  EventDetail: {
-    screen: EventDetail,
-    navigationOptions: {
-      title: "EventDetail"
-    }
-  },
-  Presence: {
-    screen: Presence,
-    navigationOptions: {
-      title: "Presence"
-    }
-  }
 });
 
 const EventListStackNavigator = createStackNavigator({
   EventList: {
     screen: EventList,
     navigationOptions: {
-      title: "EventList"
+      title: "Face Recognition"
     }
   },
   EventDetail: {
     screen: EventDetail,
     navigationOptions: {
-      title: "EventDetail"
+      title: "Détail de l'événement"
     }
   },
   Presence: {
