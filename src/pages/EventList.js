@@ -1,5 +1,6 @@
-import React, { useState } from "react";
+import React, { useEffect } from "react";
 import { useQuery } from "@apollo/react-hooks";
+import { withNavigationFocus } from "react-navigation";
 import * as queries from "../graphql/queries";
 import {
   View,
@@ -20,25 +21,17 @@ import {
 } from "native-base";
 
 function EventList(props) {
-  const { actions, evenementData } = props;
+  const { loading, data, refetch } = useQuery(queries.ALL_DATA);
 
-  const [state, setState] = useState({});
-
-  const { loading, data } = useQuery(queries.ALL_DATA, {
-    onCompleted: data => {
-      const evenements = data.evenements;
-      actions.setEvenement({
-        listEvenement: evenements
-      });
-    }
+  useEffect(() => {
+    refetch();
   });
 
-  function EventDetail(id) {
-    props.navigation.navigate("EventDetail", { id: id });
+  function EventDetail(item) {
+    props.navigation.navigate("EventDetail", { item: item });
   }
 
   function _displayStatus(event) {
-    console.log("\n\nEVENEMENT ===> \n", event, "\n\n");
     let status = "";
     const dateDebut = event.dateDebut;
     const dateFin = event.dateFin;
@@ -50,22 +43,27 @@ function EventList(props) {
     return <Text>{status}</Text>;
   }
 
+  if (loading) return <View></View>;
+
   return (
     <Container>
       <Header>
         <Left />
         <Body>
-          <Title>Liste evenement </Title>
+          <Title>Liste des événements</Title>
         </Body>
         <Right />
       </Header>
       <Content>
         <FlatList
           style={styles.list}
-          data={evenementData.listEvenement}
+          data={data.evenements}
           keyExtractor={item => item.id.toString()}
           renderItem={({ item }) => (
-            <TouchableOpacity style={styles.main_container}>
+            <TouchableOpacity
+              style={styles.main_container}
+              onPress={() => EventDetail(item)}
+            >
               <View style={styles.content_container}>
                 <View style={styles.header_container}>
                   <Text style={styles.categorie}>
@@ -80,14 +78,14 @@ function EventList(props) {
                   <Text style={styles.description_text}>
                     {item.responsables.map(p => (
                       <Text key={p.individu.id}>
-                        {p.individu.nom} {p.individu.prenom}
+                        {p.individu.nom} {p.individu.prenom}{" "}
                       </Text>
                     ))}
                   </Text>
                   <Text style={styles.description_text}>
                     {item.groupeParticipants.nomGroupeParticipant}
                     {item.groupeParticipants.map(p => (
-                      <Text key={p.id}>{p.nomGroupeParticipant}</Text>
+                      <Text key={p.id}>{p.nomGroupeParticipant}{" "}</Text>
                     ))}
                   </Text>
                 </View>
@@ -155,4 +153,4 @@ const styles = StyleSheet.create({
   }
 });
 
-export default EventList;
+export default withNavigationFocus(EventList);
