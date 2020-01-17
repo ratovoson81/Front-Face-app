@@ -41,13 +41,13 @@ const EventListStackNavigator = createStackNavigator({
   EventList: {
     screen: EventList,
     navigationOptions: {
-      title: "EventList"
+      title: "Face Recognition"
     }
   },
   EventDetail: {
     screen: EventDetail,
     navigationOptions: {
-      title: "EventDetail"
+      title: "Détail de l'événement"
     }
   },
   Presence: {
