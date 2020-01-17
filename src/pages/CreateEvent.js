@@ -1,5 +1,4 @@
-import React, { useState } from "react";
-import { useQuery, useMutation } from "@apollo/react-hooks";
+import React, { useState, useEffect } from "react";
 import { StyleSheet, Text, View, ScrollView, FlatList } from "react-native";
 import {
   Button,
@@ -17,11 +16,9 @@ import {
   Item 
 } from "native-base";
 
-import * as queries from "../graphql/queries";
-import * as mutations from "../graphql/mutations";
 import { Dropdown } from "react-native-material-dropdown";
 
-function Event(props) {
+function CreateEvent(props) {
   const {
     actions,
     categorieData,
@@ -389,4 +386,4 @@ const styles = StyleSheet.create({
   }
 });
 
-export default Event;
+export default CreateEvent;
