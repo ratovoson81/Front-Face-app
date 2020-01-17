@@ -71,7 +71,7 @@ function EventDetail({ navigation, event }) {
   function generateTableData() {
 
     const listPresence = event.presences;
-    const responsable = event.responsables[0];
+    const responsable = event.responsables;
     const dateFin = event.dateFin;
     const tableData = [];
     let rowData = [];
@@ -118,7 +118,6 @@ function EventDetail({ navigation, event }) {
   }
 
   function titleEvent() {
-    const event = data.evenement;
     const nomMatiere = event.matiere.nomMatiere;
 
     return (
@@ -137,27 +136,25 @@ function EventDetail({ navigation, event }) {
 
 
   function displayButtonStart() {
-    if(!data.evenement.dateDebut)
+    if(!event.dateDebut)
       return <Button style={{ backgroundColor: "#34A34F" }} onPress={startEvent}>
       <Icon name="play" />
     </Button>
   }
 
   function displayButtonCancel() {
-    if(data.evenement.dateDebut && !data.evenement.dateFin)
+    if(event.dateDebut && !event.dateFin)
       return <Button style={{ backgroundColor: "#DD5144" }} onPress={cancelEvent}>
       <Icon name="square" />
     </Button>
   }
 
   function displayButtonPresence() {
-    if(data.evenement.dateDebut && !data.evenement.dateFin)
+    if(event.dateDebut && !event.dateFin)
       return <Button style={{ backgroundColor: "#ffbb33"}}  onPress={() => presence()}>
       <Icon name="camera" />
     </Button>
   }
-
-  if (loading) return <View></View>;
 
   return (
     <Container style={styles.allContainer}>
@@ -193,8 +190,8 @@ function EventDetail({ navigation, event }) {
             </View>
           </ScrollView>
           <View style={styles.date}>
-            <Text style={styles.date}>{`Date de début ${ data.evenement.dateDebut}`}</Text>
-            <Text style={styles.date}>{`Date de fin ${ data.evenement.dateFin}`}</Text>
+            <Text style={styles.date}>{`Date de début ${ event.dateDebut}`}</Text>
+            <Text style={styles.date}>{`Date de fin ${ event.dateFin}`}</Text>
           </View>
         </View>
       </Content>

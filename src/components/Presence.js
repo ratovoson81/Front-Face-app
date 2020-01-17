@@ -20,7 +20,7 @@ function Presence({ navigation, actions, event }) {
   const [compareImage] = useMutation(mutations.COMPARE_IMAGE, {
     onError: function(error) {
       navigation.goBack();
-      Alert.alert("Résultat", "Checking Error");
+      Alert.alert("Checking Error", "Image impossible à traiter");
     },
     onCompleted: function(data) {
       const etudiant = data.compareImage.etudiant;
@@ -28,22 +28,25 @@ function Presence({ navigation, actions, event }) {
       const dateFin = data.compareImage.dateFin;
       console.log(data);
 
+      navigation.goBack();
+
       if (present) {
         if (etudiant) {
           actions.setEvenement({
             newPresenceEntry: etudiant,
             idEvent: event.id
           });
-        } else {
+          Alert.alert("Résultat", etudiant.individu.nom +" "+ etudiant.individu.prenom);
+        } else if (dateFin){
           actions.setEvenement({
             dateFin: dateFin,
             idEvent: event.id
           });
+          Alert.alert("Responsable vérifié", "L'évenement est clôturée");
         }
+      }else {
+        Alert.alert("Résultat", "Visage introuvable");
       }
-
-      navigation.goBack();
-      Alert.alert("Résultat", "Checking Success");
     }
   });
   const [state, setState] = useState({
