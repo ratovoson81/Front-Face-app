@@ -138,7 +138,6 @@ function CreateEvent(props) {
         });
       });
       evenement.groupeParticipants = idGp;
-      console.log(evenement)
       Toast.show({
         text: "Evenement crée !",
         buttonText: "Okay",
@@ -254,6 +253,7 @@ function CreateEvent(props) {
 
             <SafeAreaView style={{ flex: 1 }}>
                 <FlatList
+                  horizontal
                   style={{ flexDirection: 'column' }}
                   contentContainerStyle={styles.list}
                   data={state.groupeParticipants}
@@ -293,7 +293,7 @@ const styles = StyleSheet.create({
     justifyContent: "center"
   },
   item: {
-    marginTop: 20,
+    marginTop: 30,
     width: 350
   },
   button: {
