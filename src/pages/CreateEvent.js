@@ -1,5 +1,10 @@
 import React, { useState, useEffect } from "react";
-import { StyleSheet, Text, View, ScrollView, FlatList } from "react-native";
+import { 
+  StyleSheet, 
+  Text, 
+  FlatList,
+  SafeAreaView
+} from "react-native";
 import {
   Button,
   Container,
@@ -15,7 +20,6 @@ import {
   Picker,
   Item 
 } from "native-base";
-import { Dropdown } from "react-native-material-dropdown";
 
 function CreateEvent(props) {
   const {
@@ -28,12 +32,11 @@ function CreateEvent(props) {
 
   const [state, setState] = useState({
     categorie: "",
-    responsable: [],
+    responsable: "",
     matiere: "",
     groupeParticipants : [],
     showToast: false,
     gp: "",
-    res: ""
   });
 
   function onValueChangeC(value) {
@@ -46,7 +49,7 @@ function CreateEvent(props) {
   function onValueChangeR(value) {
     setState({
       ...state,
-      res: value
+      responsable: value
     });
   }
 
@@ -103,13 +106,12 @@ function CreateEvent(props) {
 
   function createObjectEvent() {
     let evenement = {};
-    let idResponsable = [];
     let idGp = [];
     let month = new Date().getMonth() + 1;
 
     if (
       state.categorie !== "" &&
-      state.responsable.length > 0 &&
+      state.responsable !== "" &&
       state.matiere !== "" &&
       state.groupeParticipants.length > 0
 
@@ -120,13 +122,9 @@ function CreateEvent(props) {
       });
 
       dataFormResponsable.forEach(responsable => {
-        state.responsable.forEach(value => {
-          if (responsable.value === value){
-            idResponsable.push(responsable.id);
-          }
-        });
+        if (responsable.value === state.responsable)
+          evenement.responsables = responsable.id;
       });
-      evenement.responsables = idResponsable;
 
       dataFormMatiere.forEach(matiere => {
         if (matiere.value === state.matiere) evenement.matiere = matiere.id;
@@ -140,7 +138,7 @@ function CreateEvent(props) {
         });
       });
       evenement.groupeParticipants = idGp;
-
+      console.log(evenement)
       Toast.show({
         text: "Evenement crée !",
         buttonText: "Okay",
@@ -174,21 +172,6 @@ function CreateEvent(props) {
     }
   }
 
-  function _addResponsable() {
-    if(state.res !== ""){
-      setState({ 
-        ...state,
-        responsable: state.responsable.concat(state.res)
-      });
-    } else{
-      Toast.show({
-        text: "Slectionner un Responsable !",
-        buttonText: "Okay",
-        type: "danger"
-      })
-    }
-  }
-
   function handleSubmit() {
     const event = createObjectEvent();
     if(event !== null){
@@ -201,7 +184,9 @@ function CreateEvent(props) {
       <Header>
         <Left />
         <Body>
-          <Title>New event </Title>
+          <Title>
+            New event 
+          </Title>
         </Body>
         <Right />
       </Header>
@@ -225,10 +210,7 @@ function CreateEvent(props) {
               <Picker
                 mode="dropdown"
                 style={{ width: undefined }}
-                placeholder="Responsable"
-                placeholderStyle={{ color: "#bfc6ea" }}
-                placeholderIconColor="#007aff"
-                selectedValue={state.res}
+                selectedValue={state.responsable}
                 onValueChange={onValueChangeR.bind(this)}
               >
                 <Picker.Item value="" label='Responsable' />
@@ -236,27 +218,7 @@ function CreateEvent(props) {
                     return (<Picker.Item label={v.value} value={v.value} key={index}/>) 
                 })}
               </Picker>
-              <Button info rounded onPress={() => _addResponsable()}>
-                <Icon name="add" />
-              </Button>
             </Item>
-            <ScrollView style={{ flex: 1 }}>
-                <FlatList
-                  contentContainerStyle={styles.list}
-                  data={state.responsable}
-                  keyExtractor={item => item}
-                  renderItem={({ item }) => (
-                    <Button 
-                      bordered 
-                      rounded
-                      info
-                      style={styles.buttonList}
-                      >
-                      <Text style={{ color: "#33b5e5" }}>{item}</Text>
-                    </Button>
-                  )}
-                />
-              </ScrollView>
               
             <Item picker style={styles.item}>
               <Picker
@@ -290,8 +252,9 @@ function CreateEvent(props) {
               </Button>
             </Item>
 
-            <ScrollView style={{ flex: 1 }}>
+            <SafeAreaView style={{ flex: 1 }}>
                 <FlatList
+                  style={{ flexDirection: 'column' }}
                   contentContainerStyle={styles.list}
                   data={state.groupeParticipants}
                   keyExtractor={item => item}
@@ -306,7 +269,7 @@ function CreateEvent(props) {
                     </Button>
                   )}
                 />
-              </ScrollView>
+              </SafeAreaView>
 
           <Button style={styles.button} rounded iconLeft onPress={handleSubmit}>
             <Text style={styles.text}>CONFIRMER</Text>
@@ -349,7 +312,11 @@ const styles = StyleSheet.create({
   list: {
     justifyContent: 'center',
     flexDirection: 'row',
-    flexWrap: 'wrap',
+  },
+  iconUser: {
+    width: 25,
+    height: 25,
+    marginRight: 5
   }
 });
 

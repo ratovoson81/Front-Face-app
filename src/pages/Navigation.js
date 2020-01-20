@@ -8,31 +8,20 @@ import CreateEvent from "../redux/containers/CreateEventCtn";
 import EventList from "../redux/containers/EventListCtn";
 import EventDetail from "../redux/containers/EventDetailCtn";
 import Presence from "../redux/containers/PresenceCtn";
+import { MaterialCommunityIcons } from '@expo/vector-icons';
 
 const EventStackNavigator = createStackNavigator({
   Event: {
     screen: CreateEvent,
     navigationOptions: {
       //header: null,
-      title: "Face Recognition"
-    }
-  },
-  EventList: {
-    screen: EventList,
-    navigationOptions: {
-      title: "EventList"
-    }
-  },
-  EventDetail: {
-    screen: EventDetail,
-    navigationOptions: {
-      title: "EventDetail"
-    }
-  },
-  Presence: {
-    screen: Presence,
-    navigationOptions: {
-      title: "Presence"
+      title: "Face Recognition",
+          headerLeft: (
+            <MaterialCommunityIcons
+            name="face-recognition"
+            style={{ fontSize: 30, marginLeft: 30}}
+        /> 
+    ),
     }
   }
 });
@@ -41,19 +30,26 @@ const EventListStackNavigator = createStackNavigator({
   EventList: {
     screen: EventList,
     navigationOptions: {
-      title: "Face Recognition"
+      //header: null,
+      title: "Face Recognition",
+          headerLeft: (
+            <MaterialCommunityIcons
+            name="face-recognition"
+            style={{ fontSize: 30, marginLeft: 30}}
+        /> 
+    ),
     }
   },
   EventDetail: {
     screen: EventDetail,
     navigationOptions: {
-      title: "Détail de l'événement"
+      title: "Détail de l'événement",
     }
   },
   Presence: {
     screen: Presence,
     navigationOptions: {
-      title: "Presence"
+      title: "Camera",
     }
   }
 });

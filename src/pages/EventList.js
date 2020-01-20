@@ -4,10 +4,9 @@ import {
   Text,
   StyleSheet,
   TouchableOpacity,
-  FlatList
+  FlatList,
 } from "react-native";
 import {
-  Button,
   Container,
   Header,
   Content,
