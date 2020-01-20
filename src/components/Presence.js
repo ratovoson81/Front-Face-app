@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from "react";
 
-import { Button, Image, Text, View, TouchableOpacity, Alert } from "react-native";
+import { Text, View, TouchableOpacity, Alert } from "react-native";
 import { Camera } from "expo-camera";
 import { ReactNativeFile } from "apollo-upload-client";
 import { useMutation } from "@apollo/react-hooks";
 import AwesomeAlert from 'react-native-awesome-alerts';
 
-import { FontAwesome, Ionicons,MaterialCommunityIcons } from '@expo/vector-icons';
+import { FontAwesome, Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 
 import * as mutations from "../graphql/mutations";
 

@@ -1,26 +1,16 @@
 import React, { useState } from "react";
-import { View, Text, StyleSheet, ScrollView } from "react-native";
+import { View, Text, StyleSheet, SafeAreaView } from "react-native";
 import { useMutation } from "@apollo/react-hooks";
 import {
   Button,
   Container,
-  Header,
   Content,
-  Left,
-  Body,
-  Right,
-  Title,
   Fab,
   Icon
 } from "native-base";
 import {
   Table,
-  TableWrapper,
   Row,
-  Rows,
-  Col,
-  Cols,
-  Cell
 } from "react-native-table-component";
 
 import * as queries from "../graphql/queries";
@@ -124,11 +114,11 @@ function EventDetail({ navigation, event }) {
       <View style={styles.title}>
         <Text>{`Fiche de présence ${event.categorie.nomCategorie}`}</Text>
         {event.groupeParticipants.map((v, index)=>{
-                    return <Text>{`Participants ${index + 1}: ${v.nomGroupeParticipant}`}</Text> 
+                    return (<Text key={index}>{`Participants ${index + 1}: ${v.nomGroupeParticipant}`}</Text>) 
                 })}
         <Text>{`Matiere: ${nomMatiere}`}</Text>
         {event.responsables.map((v, index)=>{
-                    return <Text>{`Responsable ${index + 1}: ${v.individu.nom} ${v.individu.prenom}`}</Text> 
+                    return (<Text key={index}>{`Responsable ${index + 1}: ${v.individu.nom} ${v.individu.prenom}`}</Text>)
                 })}
       </View>
     );
@@ -161,7 +151,7 @@ function EventDetail({ navigation, event }) {
       <Content style={styles.content}>
         <View style={styles.container}>
           {titleEvent()}
-          <ScrollView horizontal={true}>
+          <SafeAreaView horizontal={true}>
             <View>
               <Table borderStyle={{ borderWidth: 1 }}>
                 <Row
@@ -171,7 +161,7 @@ function EventDetail({ navigation, event }) {
                   textStyle={styles.text}
                 />
               </Table>
-              <ScrollView style={styles.dataWrapper}>
+              <SafeAreaView style={styles.dataWrapper}>
                 <Table borderStyle={{ borderWidth: 1 }}>
                   {generateTableData().map((rowData, index) => (
                     <Row
@@ -186,9 +176,9 @@ function EventDetail({ navigation, event }) {
                     />
                   ))}
                 </Table>
-              </ScrollView>
+              </SafeAreaView>
             </View>
-          </ScrollView>
+          </SafeAreaView>
           <View style={styles.date}>
             <Text style={styles.date}>{`Date de début ${ event.dateDebut}`}</Text>
             <Text style={styles.date}>{`Date de fin ${ event.dateFin}`}</Text>
