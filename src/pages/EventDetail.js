@@ -15,6 +15,7 @@ import {
 
 import * as queries from "../graphql/queries";
 import * as mutations from "../graphql/mutations";
+import Moment from 'moment';
 
 function UserIcon({ color }) {
   return <Icon name="person" style={{ color: color }} />;
@@ -118,7 +119,7 @@ function EventDetail({ navigation, event }) {
                 })}
         <Text>{`Matiere: ${nomMatiere}`}</Text>
         {event.responsables.map((v, index)=>{
-                    return (<Text key={index}>{`Responsable ${index + 1}: ${v.individu.nom} ${v.individu.prenom}`}</Text>)
+                    return (<Text key={index}>{`Responsable : ${v.individu.nom} ${v.individu.prenom}`}</Text>)
                 })}
       </View>
     );
@@ -144,6 +145,22 @@ function EventDetail({ navigation, event }) {
       return <Button style={{ backgroundColor: "#ffbb33"}}  onPress={() => presence()}>
       <Icon name="camera" />
     </Button>
+  }
+
+  function _displayDateDebut() {  
+    if(event.dateDebut){
+      return Moment(event.dateDebut).format('H:mm, Do MMM  YYYY')
+    }else {
+      return ""
+    }
+  }
+
+  function _displayDateFin() {
+    if(event.dateFin){
+      return Moment(event.dateFin).format('H:mm, Do MMM  YYYY')
+    }else {
+      return ""
+    }
   }
 
   return (
@@ -180,8 +197,8 @@ function EventDetail({ navigation, event }) {
             </View>
           </SafeAreaView>
           <View style={styles.date}>
-            <Text style={styles.date}>{`Date de début ${ event.dateDebut}`}</Text>
-            <Text style={styles.date}>{`Date de fin ${ event.dateFin}`}</Text>
+            <Text style={styles.date}>{`Date de début :${_displayDateDebut()}`}</Text>    
+            <Text style={styles.date}>{`Date de fin :${_displayDateFin()}`}</Text>
           </View>
         </View>
       </Content>

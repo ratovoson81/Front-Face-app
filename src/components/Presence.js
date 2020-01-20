@@ -26,7 +26,6 @@ function Presence({ navigation, actions, event }) {
       const etudiant = data.compareImage.etudiant;
       const present = data.compareImage.present;
       const dateFin = data.compareImage.dateFin;
-      console.log(data);
 
       navigation.goBack();
 

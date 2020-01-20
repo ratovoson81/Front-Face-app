@@ -12,9 +12,14 @@ import {
   Content,
   Left,
   Body,
+  List,
+  ListItem,
   Right,
   Title
 } from "native-base";
+
+import Moment from 'moment';
+import UserAvatar from "react-native-user-avatar";
 
 function EventList({ navigation, evenementData, actions }) {
   function EventDetail(item) {
@@ -27,11 +32,23 @@ function EventList({ navigation, evenementData, actions }) {
     const dateDebut = event.dateDebut;
     const dateFin = event.dateFin;
 
-    if (!dateDebut) status = "non debutee";
-    if (dateDebut) status = "en cours";
-    if (dateFin) status = "terminee";
+    if (!dateDebut) status = "Non debuté";
+    if (dateDebut) status = "En cours";
+    if (dateFin) status = "Terminé";
 
     return <Text>{status}</Text>;
+  }
+
+  function _displayDateDebut(event) {  
+    if(event.dateDebut){
+      return <Text note>{ Moment(event.dateDebut).format('H:mm, Do MMM  YYYY')}</Text>
+    }
+  }
+
+  function _displayDateFin(event) {
+    if(event.dateFin){
+      return <Text note>{ Moment(event.dateFin).format('H:mm, Do MMM  YYYY')}</Text>
+    }
   }
 
   return (
@@ -44,44 +61,45 @@ function EventList({ navigation, evenementData, actions }) {
         <Right />
       </Header>
       <Content>
+      <List>
         <FlatList
           style={styles.list}
           data={evenementData.listEvenement}
           keyExtractor={item => item.id.toString()}
           renderItem={({ item }) => (
-            <TouchableOpacity
-              style={styles.main_container}
-              onPress={() => EventDetail(item)}
-            >
-              <View style={styles.content_container}>
-                <View style={styles.header_container}>
-                  <Text style={styles.categorie}>
-                    {item.categorie.nomCategorie}
-                  </Text>
-                  <Text style={styles.status}>{_displayStatus(item)}</Text>
-                </View>
-                <View style={styles.description_container}>
-                  <Text style={styles.description_text}>
-                    {item.matiere.nomMatiere}{" "}
-                  </Text>
-                  <Text style={styles.description_text}>
-                    {item.responsables.map(p => (
-                      <Text key={p.individu.id}>
+                  <ListItem style={styles.list} avatar>
+                    <TouchableOpacity
+                      style={styles.main_container}
+                      onPress={() => EventDetail(item)}
+                    >
+                  <Left>
+                    <UserAvatar size="50" name={item.categorie.nomCategorie} />
+                  </Left>
+                  <Body>
+                    <Text style={styles.categorie}>{item.categorie.nomCategorie}</Text>
+                    <Text note style={styles.description_text}>{item.matiere.nomMatiere}{" "}</Text>
+                    <Text note style={styles.description_text}>{item.responsables.map(p => (
+                      <Text key={p.individu.id} style={styles.description_text}>
                         {p.individu.nom} {p.individu.prenom}{" "}
                       </Text>
-                    ))}
+                      ))}
                   </Text>
-                  <Text style={styles.description_text}>
-                    {item.groupeParticipants.nomGroupeParticipant}
+                  <Text note style={styles.description_text}>
                     {item.groupeParticipants.map(p => (
                       <Text key={p.id}>{p.nomGroupeParticipant}{" "}</Text>
                     ))}
                   </Text>
-                </View>
-              </View>
-            </TouchableOpacity>
+                  </Body>
+                  <Right>
+                    <Text note style={styles.status}>{_displayStatus(item)}</Text>                     
+                    <Text note style={styles.description_text}>{_displayDateDebut(item)}</Text>
+                    <Text note style={styles.description_text}>{_displayDateFin(item)}</Text>
+                  </Right>
+                  </TouchableOpacity>
+              </ListItem>
           )}
         />
+        </List>
       </Content>
     </Container>
   );
@@ -121,15 +139,14 @@ const styles = StyleSheet.create({
   },
   categorie: {
     fontWeight: "bold",
-    fontSize: 20,
+    fontSize: 17,
     flex: 1,
     flexWrap: "wrap",
     paddingRight: 5
   },
   status: {
     fontWeight: "bold",
-    fontSize: 20,
-    color: "#666666"
+    fontSize: 15,
   },
   description_container: {
     flex: 7
