@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { View, Text, StyleSheet, SafeAreaView } from "react-native";
 import { useMutation } from "@apollo/react-hooks";
-import { Button, Container, Content, Fab, Icon, Badge } from "native-base";
+import { Button, Container, Content, Fab, Icon, Badge, Toast } from "native-base";
 import { Table, Row } from "react-native-table-component";
 
 import * as queries from "../graphql/queries";
@@ -40,6 +40,11 @@ function EventDetail({ navigation, event, actions }) {
     const dateDebut = new Date(Date.now());
     setEvent({ variables: { dateDebut: dateDebut, idEvent: idEvent } });
     setState({ ...state, active: false });
+    Toast.show({
+      text: "Evenement démaré !",
+      buttonText: "Okay",
+      type: "danger"
+    });
   }
 
   function cancelEvent() {
@@ -47,6 +52,11 @@ function EventDetail({ navigation, event, actions }) {
       variables: { cancel: true, idEvent: idEvent, resetPresence: true }
     });
     setState({ ...state, active: false });
+    Toast.show({
+      text: "completez les champs !",
+      buttonText: "Okay",
+      type: "danger"
+    });
   }
 
   function verifPresence(membre, listePresence) {
