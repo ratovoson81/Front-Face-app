@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { View, Text, StyleSheet, SafeAreaView } from "react-native";
 import { useMutation } from "@apollo/react-hooks";
-import { Button, Container, Content, Fab, Icon, Toast } from "native-base";
+import { Button, Container, Content, Fab, Icon, Badge, Toast } from "native-base";
 import { Table, Row } from "react-native-table-component";
 
 import * as queries from "../graphql/queries";
@@ -191,11 +191,43 @@ function EventDetail({ navigation, event, actions }) {
     }
   }
 
+  function getNbPresent() {
+    const nbEtudiant = event.presences.length;
+    const responsable = event.dateFin ? 1 : 0;
+    return nbEtudiant + responsable;
+  }
+  function getNbAbsent() {
+    const { groupeParticipants, dateFin, presences } = event;
+    let total = 0;
+    groupeParticipants.forEach(gp => {
+      total = total + gp.membres.length;
+    });
+    total = total - presences.length;
+    total = dateFin ? 0 : total + 1;
+    return total;
+  }
+
   return (
     <Container style={styles.allContainer}>
       <Content style={styles.content}>
         <View style={styles.container}>
-          {titleEvent()}
+          <View style={styles.eventDetail}>
+            {titleEvent()}
+            <View>
+              <View style={{ flexDirection: "row", marginBottom: 5 }}>
+                <Text style={{ marginRight: 5 }}>Present</Text>
+                <Badge success>
+                  <Text style={{ color: "#ffffff" }}>{getNbPresent()}</Text>
+                </Badge>
+              </View>
+              <View style={{ flexDirection: "row" }}>
+                <Text style={{ marginRight: 5 }}>Absent</Text>
+                <Badge>
+                  <Text style={{ color: "#ffffff" }}>{getNbAbsent()}</Text>
+                </Badge>
+              </View>
+            </View>
+          </View>
           <SafeAreaView horizontal={true}>
             <View>
               <Table borderStyle={{ borderWidth: 1 }}>
@@ -292,6 +324,11 @@ const styles = StyleSheet.create({
   date: {
     marginTop: 10,
     alignItems: "center"
+  },
+  eventDetail: {
+    flex: 1,
+    flexDirection: "row",
+    justifyContent: "space-around"
   }
 });
 
