@@ -43,7 +43,6 @@ function EventDetail({ navigation, event, actions }) {
     Toast.show({
       text: "Evenement démaré !",
       buttonText: "Okay",
-      type: "danger"
     });
   }
 
@@ -53,9 +52,8 @@ function EventDetail({ navigation, event, actions }) {
     });
     setState({ ...state, active: false });
     Toast.show({
-      text: "completez les champs !",
+      text: "Evenement arrêté !",
       buttonText: "Okay",
-      type: "danger"
     });
   }
 
