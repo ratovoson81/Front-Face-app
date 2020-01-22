@@ -56,6 +56,9 @@ const evenement = (state = initialState, action) => {
       events = state.listEvenement.map(event => {
         if (event.id === id) {
           event.dateDebut = dateDebut;
+          if (!dateDebut) {
+            event.presences = [];
+          }
         }
         return event;
       });

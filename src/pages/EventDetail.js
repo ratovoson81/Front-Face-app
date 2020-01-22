@@ -43,7 +43,9 @@ function EventDetail({ navigation, event, actions }) {
   }
 
   function cancelEvent() {
-    setEvent({ variables: { cancel: true, idEvent: idEvent } });
+    setEvent({
+      variables: { cancel: true, idEvent: idEvent, resetPresence: true }
+    });
     setState({ ...state, active: false });
   }
 

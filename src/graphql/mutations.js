@@ -79,6 +79,7 @@ export const SET_EVENT = gql`
     $presences: [ID]
     $responsables: [ID]
     $cancel: Boolean
+    $resetPresence: Boolean
   ) {
     setEvent(
       categorie: $categorie
@@ -90,6 +91,7 @@ export const SET_EVENT = gql`
       presences: $presences
       responsables: $responsables
       cancel: $cancel
+      resetPresence: $resetPresence
     ) {
       evenement {
         id
