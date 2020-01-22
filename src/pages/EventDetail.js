@@ -203,7 +203,7 @@ function EventDetail({ navigation, event, actions }) {
       total = total + gp.membres.length;
     });
     total = total - presences.length;
-    total = dateFin ? 0 : total + 1;
+    total = dateFin ? total : total + 1;
     return total;
   }
 
