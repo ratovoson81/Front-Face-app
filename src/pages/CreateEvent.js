@@ -1,11 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { 
-  StyleSheet, 
-  Text, 
-  FlatList,
-  SafeAreaView,
-  Alert
-} from "react-native";
+import { StyleSheet, Text, FlatList, SafeAreaView, Alert } from "react-native";
 import {
   Button,
   Container,
@@ -19,7 +13,7 @@ import {
   Icon,
   Toast,
   Picker,
-  Item 
+  Item
 } from "native-base";
 
 function CreateEvent(props) {
@@ -35,9 +29,9 @@ function CreateEvent(props) {
     categorie: "",
     responsable: "",
     matiere: "",
-    groupeParticipants : [],
+    groupeParticipants: [],
     showToast: false,
-    gp: "",
+    gp: ""
   });
 
   function onValueChangeC(value) {
@@ -115,7 +109,6 @@ function CreateEvent(props) {
       state.responsable !== "" &&
       state.matiere !== "" &&
       state.groupeParticipants.length > 0
-
     ) {
       dataFormCategorie.forEach(categorie => {
         if (categorie.value === state.categorie)
@@ -133,7 +126,7 @@ function CreateEvent(props) {
 
       dataFormGroupeParticipants.forEach(groupe => {
         state.groupeParticipants.forEach(value => {
-          if (groupe.value === value){
+          if (groupe.value === value) {
             idGp.push(groupe.id);
           }
         });
@@ -143,7 +136,7 @@ function CreateEvent(props) {
         text: "Evenement crée !",
         buttonText: "Okay",
         type: "success"
-      })
+      });
       //props.navigation.navigate("EventList", { evenement: evenement });
 
       return evenement;
@@ -152,55 +145,58 @@ function CreateEvent(props) {
         text: "completez les champs !",
         buttonText: "Okay",
         type: "danger"
-      })
-      return null
+      });
+      return null;
     }
   }
 
   function _addParticipant() {
-    if(state.groupeParticipants.find(element => element === state.gp) ){
+    if (state.groupeParticipants.find(element => element === state.gp)) {
       Toast.show({
         text: "Slectionner un autre participants !",
         buttonText: "Okay",
         type: "danger"
-      })
-    }
-    else if(state.gp !== "" ){
-      setState({ 
+      });
+    } else if (state.gp !== "") {
+      setState({
         ...state,
         groupeParticipants: state.groupeParticipants.concat(state.gp)
       });
-    }else {
+    } else {
       Toast.show({
         text: "Slectionner un participants !",
         buttonText: "Okay",
         type: "danger"
-      })
+      });
     }
   }
 
   function handleSubmit() {
     const event = createObjectEvent();
-    if(event !== null){
+    if (event !== null) {
       actions.asyncCreateEvent({ event });
     }
   }
 
   function deleteP(item) {
-    setState({ 
+    setState({
       ...state,
-      groupeParticipants: state.groupeParticipants.filter((gp) => gp !== item ),
+      groupeParticipants: state.groupeParticipants.filter(gp => gp !== item)
     });
   }
 
   function deleteParticipant(item) {
     Alert.alert(
-      'Supprimer le groupe',
+      "Supprimer le groupe",
       item,
       [
-        {text: 'OK', onPress: () => deleteP(item)},
+        { text: "Valider", onPress: () => deleteP(item) },
+        {
+          text: "Annuler",
+          style: "cancel"
+        }
       ],
-      {cancelable: false},
+      { cancelable: true }
     );
   }
 
@@ -209,94 +205,100 @@ function CreateEvent(props) {
       <Header>
         <Left />
         <Body>
-          <Title>
-            New event 
-          </Title>
+          <Title>New event</Title>
         </Body>
         <Right />
       </Header>
       <Content padder>
         <Form style={styles.form}>
-            <Item picker style={styles.item}>
-              <Picker
-                mode="dropdown"
-                style={{ width: undefined }}
-                selectedValue={state.categorie}
-                onValueChange={onValueChangeC.bind(this)}
-              >
-                <Picker.Item value="" label='Catégorie' />
-                {dataFormCategorie.map((v,index)=>{
-                    return (<Picker.Item label={v.value} value={v.value} key={index}/>) 
-                })}
-              </Picker>
-            </Item>
+          <Item picker style={styles.item}>
+            <Picker
+              mode="dropdown"
+              style={{ width: undefined }}
+              selectedValue={state.categorie}
+              onValueChange={onValueChangeC.bind(this)}
+            >
+              <Picker.Item value="" label="Catégorie" />
+              {dataFormCategorie.map((v, index) => {
+                return (
+                  <Picker.Item label={v.value} value={v.value} key={index} />
+                );
+              })}
+            </Picker>
+          </Item>
 
-            <Item picker style={styles.item}>
-              <Picker
-                mode="dropdown"
-                style={{ width: undefined }}
-                selectedValue={state.responsable}
-                onValueChange={onValueChangeR.bind(this)}
-              >
-                <Picker.Item value="" label='Responsable' />
-                {dataFormResponsable.map((v,index)=>{
-                    return (<Picker.Item label={v.value} value={v.value} key={index}/>) 
-                })}
-              </Picker>
-            </Item>
-              
-            <Item picker style={styles.item}>
-              <Picker
-                mode="dropdown"
-                style={{ width: undefined }}
-                selectedValue={state.matiere}
-                onValueChange={onValueChangeM.bind(this)}
-              >
-                <Picker.Item value="" label='Matiere' />
-                {dataFormMatiere.map((v,index)=>{
-                    return (<Picker.Item label={v.value} value={v.value} key={index}/>) 
-                })}
-              </Picker>
-            </Item>
+          <Item picker style={styles.item}>
+            <Picker
+              mode="dropdown"
+              style={{ width: undefined }}
+              selectedValue={state.responsable}
+              onValueChange={onValueChangeR.bind(this)}
+            >
+              <Picker.Item value="" label="Responsable" />
+              {dataFormResponsable.map((v, index) => {
+                return (
+                  <Picker.Item label={v.value} value={v.value} key={index} />
+                );
+              })}
+            </Picker>
+          </Item>
 
-            <Item picker style={styles.item}>
-              <Picker
-                mode="dropdown"
-                style={{ width: undefined }}
-                selectedValue={state.gp}
-                onValueChange={onValueChangeP.bind(this)}
-              >
-                <Picker.Item value="" label='Participants' />
-                {dataFormGroupeParticipants.map((v,index)=>{
-                    return (<Picker.Item label={v.value} value={v.value} key={index}/>) 
-                })}
-              </Picker>
-            
-              <Button info rounded onPress={() => _addParticipant()}>
-                <Icon name="add" />
-              </Button>
-            </Item>
+          <Item picker style={styles.item}>
+            <Picker
+              mode="dropdown"
+              style={{ width: undefined }}
+              selectedValue={state.matiere}
+              onValueChange={onValueChangeM.bind(this)}
+            >
+              <Picker.Item value="" label="Matiere" />
+              {dataFormMatiere.map((v, index) => {
+                return (
+                  <Picker.Item label={v.value} value={v.value} key={index} />
+                );
+              })}
+            </Picker>
+          </Item>
 
-            <SafeAreaView style={{ flex: 1 }}>
-                <FlatList
-                  horizontal
-                  style={{ flexDirection: 'column' }}
-                  contentContainerStyle={styles.list}
-                  data={state.groupeParticipants}
-                  keyExtractor={item => item}
-                  renderItem={({ item }) => (
-                    <Button 
-                      bordered 
-                      rounded
-                      info
-                      style={styles.buttonList}
-                      onPress={() => deleteParticipant(item)}
-                      >
-                      <Text style={{ color: "#33b5e5" }}>{item}</Text>
-                    </Button>
-                  )}
-                />
-              </SafeAreaView>
+          <Item picker style={styles.item}>
+            <Picker
+              mode="dropdown"
+              style={{ width: undefined }}
+              selectedValue={state.gp}
+              onValueChange={onValueChangeP.bind(this)}
+            >
+              <Picker.Item value="" label="Participants" />
+              {dataFormGroupeParticipants.map((v, index) => {
+                return (
+                  <Picker.Item label={v.value} value={v.value} key={index} />
+                );
+              })}
+            </Picker>
+
+            <Button info rounded onPress={() => _addParticipant()}>
+              <Icon name="add" />
+            </Button>
+          </Item>
+
+          <SafeAreaView style={{ flex: 1 }}>
+            <FlatList
+              horizontal
+              style={{ flexDirection: "column" }}
+              contentContainerStyle={styles.list}
+              data={state.groupeParticipants}
+              keyExtractor={item => item}
+              renderItem={({ item }) => (
+                <Button
+                  bordered
+                  rounded
+                  info
+                  style={styles.buttonList}
+                  onPress={() => deleteParticipant(item)}
+                >
+                  <Text style={{ color: "#33b5e5" }}>{item}</Text>
+                </Button>
+              )}
+            />
+          </SafeAreaView>
 
           <Button style={styles.button} rounded iconLeft onPress={handleSubmit}>
             <Text style={styles.text}>CONFIRMER</Text>
@@ -337,8 +339,8 @@ const styles = StyleSheet.create({
     color: "white"
   },
   list: {
-    justifyContent: 'center',
-    flexDirection: 'row',
+    justifyContent: "center",
+    flexDirection: "row"
   },
   iconUser: {
     width: 25,
