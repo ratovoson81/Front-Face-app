@@ -19,7 +19,7 @@ import {
 } from "native-base";
 
 import Moment from "moment";
-//import UserAvatar from "react-native-user-avatar";
+import UserAvatar from "react-native-user-avatar";
 
 function EventList({ navigation, evenementData, actions }) {
   function EventDetail(item) {
@@ -76,7 +76,9 @@ function EventList({ navigation, evenementData, actions }) {
                   style={styles.main_container}
                   onPress={() => EventDetail(item)}
                 >
-                  <Left></Left>
+                  <Left>
+                    <UserAvatar size="50" name={item.categorie.nomCategorie} />
+                  </Left>
                   <Body>
                     <Text style={styles.categorie}>
                       {item.categorie.nomCategorie}
