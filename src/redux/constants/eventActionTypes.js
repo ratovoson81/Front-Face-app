@@ -1,2 +1,3 @@
 export const SET_EVENEMENT = "SET_EVENEMENT";
 export const ADD_EVENEMENT = "ADD_EVENEMENT";
+export const START_EVENT = "START_EVENT";

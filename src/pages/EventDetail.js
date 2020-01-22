@@ -1,36 +1,35 @@
 import React, { useState } from "react";
 import { View, Text, StyleSheet, SafeAreaView } from "react-native";
 import { useMutation } from "@apollo/react-hooks";
-import {
-  Button,
-  Container,
-  Content,
-  Fab,
-  Icon
-} from "native-base";
-import {
-  Table,
-  Row,
-} from "react-native-table-component";
+import { Button, Container, Content, Fab, Icon } from "native-base";
+import { Table, Row } from "react-native-table-component";
 
 import * as queries from "../graphql/queries";
 import * as mutations from "../graphql/mutations";
-import Moment from 'moment';
+import Moment from "moment";
 
 function UserIcon({ color }) {
   return <Icon name="person" style={{ color: color }} />;
 }
 
-function EventDetail({ navigation, event }) {
+function EventDetail({ navigation, event, actions }) {
   const { id: idEvent } = navigation.state.params.item;
   const [setEvent] = useMutation(mutations.SET_EVENT, {
-    refetchQueries: [{ query: queries.ALL_DATA }]
+    refetchQueries: [{ query: queries.ALL_DATA }],
+    onCompleted: data => {
+      const id = data.setEvent.evenement.id;
+      const dateDebut = data.setEvent.evenement.dateDebut;
+      actions.startEvent({
+        id,
+        dateDebut
+      });
+    }
   });
 
   const [state, setState] = useState({
     tableHead: ["Num", "Nom prenom", "Parcours", "Presence"],
     widthArr: [40, 210, 90, 70],
-    active: false,
+    active: false
   });
 
   function presence() {
@@ -60,7 +59,6 @@ function EventDetail({ navigation, event }) {
   }
 
   function generateTableData() {
-
     const listPresence = event.presences;
     const responsable = event.responsables;
     const dateFin = event.dateFin;
@@ -90,7 +88,9 @@ function EventDetail({ navigation, event }) {
     responsable.forEach(responsable => {
       rowData = [];
       rowData.push(responsable.id);
-      rowData.push(`${responsable.individu.nom} ${responsable.individu.prenom}`);
+      rowData.push(
+        `${responsable.individu.nom} ${responsable.individu.prenom}`
+      );
       rowData.push("responsable");
       rowData.push(
         dateFin ? (
@@ -114,52 +114,68 @@ function EventDetail({ navigation, event }) {
     return (
       <View style={styles.title}>
         <Text>{`Fiche de présence ${event.categorie.nomCategorie}`}</Text>
-        {event.groupeParticipants.map((v, index)=>{
-                    return (<Text key={index}>{`Participants ${index + 1}: ${v.nomGroupeParticipant}`}</Text>) 
-                })}
+        {event.groupeParticipants.map((v, index) => {
+          return (
+            <Text key={index}>{`Participants ${index + 1}: ${
+              v.nomGroupeParticipant
+            }`}</Text>
+          );
+        })}
         <Text>{`Matiere: ${nomMatiere}`}</Text>
-        {event.responsables.map((v, index)=>{
-                    return (<Text key={index}>{`Responsable : ${v.individu.nom} ${v.individu.prenom}`}</Text>)
-                })}
+        {event.responsables.map((v, index) => {
+          return (
+            <Text
+              key={index}
+            >{`Responsable : ${v.individu.nom} ${v.individu.prenom}`}</Text>
+          );
+        })}
       </View>
     );
   }
 
-
   function displayButtonStart() {
-    if(!event.dateDebut)
-      return <Button style={{ backgroundColor: "#34A34F" }} onPress={startEvent}>
-      <Icon name="play" />
-    </Button>
+    if (!event.dateDebut)
+      return (
+        <Button style={{ backgroundColor: "#34A34F" }} onPress={startEvent}>
+          <Icon name="play" />
+        </Button>
+      );
   }
 
   function displayButtonCancel() {
-    if(event.dateDebut && !event.dateFin)
-      return <Button style={{ backgroundColor: "#DD5144" }} onPress={cancelEvent}>
-      <Icon name="square" />
-    </Button>
+    if (event.dateDebut && !event.dateFin)
+      return (
+        <Button style={{ backgroundColor: "#DD5144" }} onPress={cancelEvent}>
+          <Icon name="square" />
+        </Button>
+      );
   }
 
   function displayButtonPresence() {
-    if(event.dateDebut && !event.dateFin)
-      return <Button style={{ backgroundColor: "#ffbb33"}}  onPress={() => presence()}>
-      <Icon name="camera" />
-    </Button>
+    if (event.dateDebut && !event.dateFin)
+      return (
+        <Button
+          style={{ backgroundColor: "#ffbb33" }}
+          onPress={() => presence()}
+        >
+          <Icon name="camera" />
+        </Button>
+      );
   }
 
-  function _displayDateDebut() {  
-    if(event.dateDebut){
-      return Moment(event.dateDebut).format('H:mm, Do MMM  YYYY')
-    }else {
-      return ""
+  function _displayDateDebut() {
+    if (event.dateDebut) {
+      return Moment(event.dateDebut).format("H:mm, Do MMM  YYYY");
+    } else {
+      return "";
     }
   }
 
   function _displayDateFin() {
-    if(event.dateFin){
-      return Moment(event.dateFin).format('H:mm, Do MMM  YYYY')
-    }else {
-      return ""
+    if (event.dateFin) {
+      return Moment(event.dateFin).format("H:mm, Do MMM  YYYY");
+    } else {
+      return "";
     }
   }
 
@@ -185,10 +201,7 @@ function EventDetail({ navigation, event }) {
                       key={index}
                       data={rowData}
                       widthArr={state.widthArr}
-                      style={[
-                        styles.row,
-                        index % 2 && { }
-                      ]}
+                      style={[styles.row, index % 2 && {}]}
                       textStyle={styles.text}
                     />
                   ))}
@@ -197,8 +210,12 @@ function EventDetail({ navigation, event }) {
             </View>
           </SafeAreaView>
           <View style={styles.date}>
-            <Text style={styles.date}>{`Date de début :${_displayDateDebut()}`}</Text>    
-            <Text style={styles.date}>{`Date de fin :${_displayDateFin()}`}</Text>
+            <Text
+              style={styles.date}
+            >{`Date de début :${_displayDateDebut()}`}</Text>
+            <Text
+              style={styles.date}
+            >{`Date de fin :${_displayDateFin()}`}</Text>
           </View>
         </View>
       </Content>
@@ -234,7 +251,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#fff"
   },
   header: {
-    height: 50,
+    height: 50
   },
   text: {
     textAlign: "center",
@@ -244,7 +261,7 @@ const styles = StyleSheet.create({
     marginTop: -1
   },
   row: {
-    height: 40,
+    height: 40
   },
   title: {
     marginBottom: 15,
@@ -267,4 +284,3 @@ const styles = StyleSheet.create({
 });
 
 export default EventDetail;
-

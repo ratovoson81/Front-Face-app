@@ -13,3 +13,10 @@ export function addEvenement(payload) {
     payload
   };
 }
+
+export function startEvent(payload) {
+  return {
+    type: types.START_EVENT,
+    payload
+  };
+}

@@ -51,6 +51,17 @@ const evenement = (state = initialState, action) => {
       newState.listEvenement = [...state.listEvenement, payload.event];
       return newState;
 
+    case types.START_EVENT:
+      const { id, dateDebut } = action.payload;
+      events = state.listEvenement.map(event => {
+        if (event.id === id) {
+          event.dateDebut = dateDebut;
+        }
+        return event;
+      });
+      newState.listEvenement = [...events];
+      return newState;
+
     default:
       return state;
   }

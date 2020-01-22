@@ -100,6 +100,7 @@ export const SET_EVENT = gql`
           nomMatiere
         }
         responsables {
+          id
           individu {
             id
             nom
@@ -109,6 +110,7 @@ export const SET_EVENT = gql`
         presences {
           id
           individu {
+            id
             nom
             prenom
           }
@@ -118,6 +120,16 @@ export const SET_EVENT = gql`
         groupeParticipants {
           id
           nomGroupeParticipant
+          membres {
+            id
+            individu {
+              id
+              nom
+              prenom
+            }
+            niveau
+            parcours
+          }
         }
         dateDebut
         dateFin
