@@ -3,7 +3,8 @@ import {
   StyleSheet, 
   Text, 
   FlatList,
-  SafeAreaView
+  SafeAreaView,
+  Alert
 } from "react-native";
 import {
   Button,
@@ -157,7 +158,14 @@ function CreateEvent(props) {
   }
 
   function _addParticipant() {
-    if(state.gp !== ""){
+    if(state.groupeParticipants.find(element => element === state.gp) ){
+      Toast.show({
+        text: "Slectionner un autre participants !",
+        buttonText: "Okay",
+        type: "danger"
+      })
+    }
+    else if(state.gp !== "" ){
       setState({ 
         ...state,
         groupeParticipants: state.groupeParticipants.concat(state.gp)
@@ -176,6 +184,24 @@ function CreateEvent(props) {
     if(event !== null){
       actions.asyncCreateEvent({ event });
     }
+  }
+
+  function deleteP(item) {
+    setState({ 
+      ...state,
+      groupeParticipants: state.groupeParticipants.filter((gp) => gp !== item ),
+    });
+  }
+
+  function deleteParticipant(item) {
+    Alert.alert(
+      'Supprimer le groupe',
+      item,
+      [
+        {text: 'OK', onPress: () => deleteP(item)},
+      ],
+      {cancelable: false},
+    );
   }
 
   return (
@@ -264,6 +290,7 @@ function CreateEvent(props) {
                       rounded
                       info
                       style={styles.buttonList}
+                      onPress={() => deleteParticipant(item)}
                       >
                       <Text style={{ color: "#33b5e5" }}>{item}</Text>
                     </Button>
