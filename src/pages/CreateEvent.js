@@ -134,7 +134,6 @@ function CreateEvent(props) {
       evenement.groupeParticipants = idGp;
       Toast.show({
         text: "Evenement crée !",
-        buttonText: "Okay",
         type: "success"
       });
       //props.navigation.navigate("EventList", { evenement: evenement });
@@ -143,7 +142,6 @@ function CreateEvent(props) {
     } else {
       Toast.show({
         text: "completez les champs !",
-        buttonText: "Okay",
         type: "danger"
       });
       return null;
@@ -154,7 +152,6 @@ function CreateEvent(props) {
     if (state.groupeParticipants.find(element => element === state.gp)) {
       Toast.show({
         text: "Slectionner un autre participants !",
-        buttonText: "Okay",
         type: "danger"
       });
     } else if (state.gp !== "") {
@@ -165,7 +162,6 @@ function CreateEvent(props) {
     } else {
       Toast.show({
         text: "Slectionner un participants !",
-        buttonText: "Okay",
         type: "danger"
       });
     }

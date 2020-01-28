@@ -1,15 +1,31 @@
 import React, { useState } from "react";
-import { View, Text, StyleSheet, SafeAreaView } from "react-native";
+import { View, Text, StyleSheet, FlatList } from "react-native";
 import { useMutation } from "@apollo/react-hooks";
-import { Button, Container, Content, Fab, Icon, Badge, Toast } from "native-base";
-import { Table, Row } from "react-native-table-component";
+import {
+  Button,
+  Fab,
+  Icon,
+  Badge,
+  Toast,
+  Container,
+  Content,
+  Left,
+  Body,
+  List,
+  ListItem,
+  Right
+} from "native-base";
+
+import * as Print from "expo-print";
+import * as FileSystem from "expo-file-system";
+import * as Sharing from "expo-sharing";
 
 import * as queries from "../graphql/queries";
 import * as mutations from "../graphql/mutations";
 import Moment from "moment";
 
 function UserIcon({ color }) {
-  return <Icon name="person" style={{ color: color }} />;
+  return <Icon name="person" style={{ fontSize: 30, color: color }} />;
 }
 
 function EventDetail({ navigation, event, actions }) {
@@ -32,6 +48,16 @@ function EventDetail({ navigation, event, actions }) {
     active: false
   });
 
+  function getMembers() {
+    let membres = [];
+    event.groupeParticipants.forEach(groupe => {
+      groupe.membres.forEach(membre => {
+        membres.push(membre);
+      });
+    });
+    return membres;
+  }
+
   function presence() {
     navigation.navigate("Presence", { idEvent: idEvent });
   }
@@ -41,8 +67,7 @@ function EventDetail({ navigation, event, actions }) {
     setEvent({ variables: { dateDebut: dateDebut, idEvent: idEvent } });
     setState({ ...state, active: false });
     Toast.show({
-      text: "Evenement démaré !",
-      buttonText: "Okay",
+      text: "Evenement démaré !"
     });
   }
 
@@ -52,8 +77,7 @@ function EventDetail({ navigation, event, actions }) {
     });
     setState({ ...state, active: false });
     Toast.show({
-      text: "Evenement arrêté !",
-      buttonText: "Okay",
+      text: "Evenement arrêté !"
     });
   }
 
@@ -66,56 +90,6 @@ function EventDetail({ navigation, event, actions }) {
       }
     });
     return present;
-  }
-
-  function generateTableData() {
-    const listPresence = event.presences;
-    const responsable = event.responsables;
-    const dateFin = event.dateFin;
-    const tableData = [];
-    let rowData = [];
-
-    event.groupeParticipants.forEach(groupe => {
-      groupe.membres.forEach(membre => {
-        rowData = [];
-        rowData.push(membre.id);
-        rowData.push(`${membre.individu.nom} ${membre.individu.prenom}`);
-        rowData.push(`${membre.niveau} ${membre.parcours}`);
-        rowData.push(
-          verifPresence(membre, listPresence) ? (
-            <View style={styles.iconPresence}>
-              <UserIcon color="#2BE320" />
-            </View>
-          ) : (
-            <View style={styles.iconPresence}>
-              <UserIcon color="#D02A1E" />
-            </View>
-          )
-        );
-        tableData.push(rowData);
-      });
-    });
-    responsable.forEach(responsable => {
-      rowData = [];
-      rowData.push(responsable.id);
-      rowData.push(
-        `${responsable.individu.nom} ${responsable.individu.prenom}`
-      );
-      rowData.push("responsable");
-      rowData.push(
-        dateFin ? (
-          <View style={styles.iconPresence}>
-            <UserIcon color="#2BE320" />
-          </View>
-        ) : (
-          <View style={styles.iconPresence}>
-            <UserIcon color="#D02A1E" />
-          </View>
-        )
-      );
-      tableData.unshift(rowData);
-    });
-    return tableData;
   }
 
   function titleEvent() {
@@ -173,9 +147,21 @@ function EventDetail({ navigation, event, actions }) {
       );
   }
 
+  function displayButtonPrint() {
+    if (event.dateDebut && event.dateFin)
+      return (
+        <Button
+          style={{ backgroundColor: "#2BBBAD" }}
+          onPress={() => createPDF()}
+        >
+          <Icon name="paper" />
+        </Button>
+      );
+  }
+
   function _displayDateDebut() {
     if (event.dateDebut) {
-      return Moment(event.dateDebut).format("H:mm, Do MMM  YYYY");
+      return Moment(event.dateDebut).format("H:mm, Do MMM YYYY");
     } else {
       return "";
     }
@@ -183,7 +169,7 @@ function EventDetail({ navigation, event, actions }) {
 
   function _displayDateFin() {
     if (event.dateFin) {
-      return Moment(event.dateFin).format("H:mm, Do MMM  YYYY");
+      return Moment(event.dateFin).format("H:mm, Do MMM YYYY");
     } else {
       return "";
     }
@@ -191,7 +177,7 @@ function EventDetail({ navigation, event, actions }) {
 
   function getNbPresent() {
     const nbEtudiant = event.presences.length;
-    const responsable = event.dateFin ? 1 : 0;
+    const responsable = 0; //event.dateFin ? 1 : 0;
     return nbEtudiant + responsable;
   }
   function getNbAbsent() {
@@ -201,8 +187,25 @@ function EventDetail({ navigation, event, actions }) {
       total = total + gp.membres.length;
     });
     total = total - presences.length;
-    total = dateFin ? total : total + 1;
+    //total = dateFin ? total : total + 1;
     return total;
+  }
+
+  async function createPDF() {
+    try {
+      let file = await Print.printToFileAsync({
+        html: "<h1>PDF TEST</h1>",
+        width: 612,
+        height: 792,
+        base64: false
+      });
+      FileSystem.createDownloadResumable(
+        file,
+        FileSystem.documentDirectory + "thisIsAFolder/" + filename
+      );
+    } catch (error) {
+      alert("error");
+    }
   }
 
   return (
@@ -226,31 +229,38 @@ function EventDetail({ navigation, event, actions }) {
               </View>
             </View>
           </View>
-          <SafeAreaView horizontal={true}>
-            <View>
-              <Table borderStyle={{ borderWidth: 1 }}>
-                <Row
-                  data={state.tableHead}
-                  widthArr={state.widthArr}
-                  style={styles.header}
-                  textStyle={styles.text}
-                />
-              </Table>
-              <SafeAreaView style={styles.dataWrapper}>
-                <Table borderStyle={{ borderWidth: 1 }}>
-                  {generateTableData().map((rowData, index) => (
-                    <Row
-                      key={index}
-                      data={rowData}
-                      widthArr={state.widthArr}
-                      style={[styles.row, index % 2 && {}]}
-                      textStyle={styles.text}
-                    />
-                  ))}
-                </Table>
-              </SafeAreaView>
-            </View>
-          </SafeAreaView>
+          <List>
+            <FlatList
+              data={getMembers()}
+              keyExtractor={item => item.id.toString()}
+              renderItem={({ item }) => (
+                <ListItem avatar>
+                  <Left>
+                    <Text style={styles.id}>{item.id}</Text>
+                  </Left>
+                  <Body>
+                    <Text style={styles.nom}>
+                      {item.individu.nom} {item.individu.prenom}
+                    </Text>
+                    <Text note style={styles.description_text}>
+                      {item.niveau} {item.parcours}{" "}
+                    </Text>
+                  </Body>
+                  <Right>
+                    {verifPresence(item, event.presences) ? (
+                      <View style={styles.iconPresence}>
+                        <UserIcon color="#2BE320" />
+                      </View>
+                    ) : (
+                      <View style={styles.iconPresence}>
+                        <UserIcon color="#D02A1E" />
+                      </View>
+                    )}
+                  </Right>
+                </ListItem>
+              )}
+            />
+          </List>
           <View style={styles.date}>
             <Text
               style={styles.date}
@@ -274,6 +284,7 @@ function EventDetail({ navigation, event, actions }) {
           {displayButtonStart()}
           {displayButtonCancel()}
           {displayButtonPresence()}
+          {displayButtonPrint()}
         </Fab>
       </View>
     </Container>
@@ -327,6 +338,19 @@ const styles = StyleSheet.create({
     flex: 1,
     flexDirection: "row",
     justifyContent: "space-around"
+  },
+  nom: {
+    fontWeight: "bold",
+    fontSize: 15,
+    flex: 1,
+    flexWrap: "wrap",
+    paddingRight: 5
+  },
+  description_text: {
+    color: "#666666"
+  },
+  id: {
+    paddingTop: 7
   }
 });
 
