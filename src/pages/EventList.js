@@ -42,7 +42,7 @@ function EventList({ navigation, evenementData, actions }) {
   function _displayDateDebut(event) {
     if (event.dateDebut) {
       return (
-        <Text note>{Moment(event.dateDebut).format("H:mm, Do MMM  YYYY")}</Text>
+        <Text note>{Moment(event.dateDebut).format("H:mm, Do MMM YYYY")}</Text>
       );
     }
   }
@@ -50,7 +50,7 @@ function EventList({ navigation, evenementData, actions }) {
   function _displayDateFin(event) {
     if (event.dateFin) {
       return (
-        <Text note>{Moment(event.dateFin).format("H:mm, Do MMM  YYYY")}</Text>
+        <Text note>{Moment(event.dateFin).format("H:mm, Do MMM YYYY")}</Text>
       );
     }
   }
