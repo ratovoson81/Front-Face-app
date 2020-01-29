@@ -13,7 +13,12 @@ import {
   Body,
   List,
   ListItem,
-  Right
+  Right,
+  Tabs,
+  Header,
+  Tab,
+  Form,
+  Picker
 } from "native-base";
 
 import * as Print from "expo-print";
@@ -30,6 +35,12 @@ function UserIcon({ color }) {
 
 function EventDetail({ navigation, event, actions }) {
   const { id: idEvent } = navigation.state.params.item;
+  const allParticipants = [];
+  event.groupeParticipants.forEach(groupe => {
+    groupe.membres.forEach(membre => {
+      allParticipants.push(membre);
+    });
+  });
   const [setEvent] = useMutation(mutations.SET_EVENT, {
     refetchQueries: [{ query: queries.ALL_DATA }],
     onCompleted: data => {
@@ -45,17 +56,62 @@ function EventDetail({ navigation, event, actions }) {
   const [state, setState] = useState({
     tableHead: ["Num", "Nom prenom", "Parcours", "Presence"],
     widthArr: [40, 210, 90, 70],
-    active: false
+    active: false,
+    selected: "",
+    membres: allParticipants
   });
 
   function getMembers() {
-    let membres = [];
+    let all = [];
+    let absent = [];
+    let presents = event.presences;
     event.groupeParticipants.forEach(groupe => {
       groupe.membres.forEach(membre => {
-        membres.push(membre);
+        all.push(membre);
       });
     });
-    return membres;
+
+    var onlyInA = all.filter(comparer(presents));
+    var onlyInB = presents.filter(comparer(all));
+
+    absent = onlyInA.concat(onlyInB);
+    if (state.selected === "absent") {
+      setState({
+        ...state,
+        membres: absent
+      });
+    } else if (state.selected === "present") {
+      setState({
+        ...state,
+        membres: presents
+      });
+    } else {
+      setState({
+        ...state,
+        membres: all
+      });
+    }
+  }
+
+  function comparer(otherArray) {
+    return function(current) {
+      return (
+        otherArray.filter(function(other) {
+          return (
+            other.individu.nom === current.individu.nom &&
+            other.individu.prenom === current.individu.prenom &&
+            other.id === current.id
+          );
+        }).length == 0
+      );
+    };
+  }
+
+  function onValueChange(value) {
+    setState({
+      ...state,
+      selected: value
+    });
   }
 
   function presence() {
@@ -199,10 +255,7 @@ function EventDetail({ navigation, event, actions }) {
         height: 792,
         base64: false
       });
-      FileSystem.createDownloadResumable(
-        file,
-        FileSystem.documentDirectory + "thisIsAFolder/" + filename
-      );
+      Sharing.shareAsync(file.uri, { dialogTitle: "Here is your PDF" });
     } catch (error) {
       alert("error");
     }
@@ -210,7 +263,7 @@ function EventDetail({ navigation, event, actions }) {
 
   return (
     <Container style={styles.allContainer}>
-      <Content style={styles.content}>
+      <Content padder style={styles.content}>
         <View style={styles.container}>
           <View style={styles.eventDetail}>
             {titleEvent()}
@@ -229,10 +282,31 @@ function EventDetail({ navigation, event, actions }) {
               </View>
             </View>
           </View>
+          <Form style={styles.form}>
+            <Picker
+              mode="dropdown"
+              style={{ width: undefined }}
+              selectedValue={state.selected}
+              onValueChange={onValueChange.bind(this)}
+            >
+              <Picker.Item label="Tout" value="all" />
+              <Picker.Item label="Present" value="present" />
+              <Picker.Item label="Absent" value="absent" />
+            </Picker>
+            <Button
+              bordered
+              rounded
+              info
+              style={styles.button}
+              onPress={() => getMembers()}
+            >
+              <Text style={{ color: "#33b5e5" }}>flitrer</Text>
+            </Button>
+          </Form>
           <List>
             <FlatList
-              data={getMembers()}
-              keyExtractor={item => item.id.toString()}
+              data={state.membres}
+              keyExtractor={item => item.individu.id.toString()}
               renderItem={({ item }) => (
                 <ListItem avatar>
                   <Left>
@@ -351,6 +425,14 @@ const styles = StyleSheet.create({
   },
   id: {
     paddingTop: 7
+  },
+  form: {
+    flexDirection: "row",
+    alignSelf: "center",
+    width: 200
+  },
+  button: {
+    padding: 15
   }
 });
 
