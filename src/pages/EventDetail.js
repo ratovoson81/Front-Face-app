@@ -14,20 +14,16 @@ import {
   List,
   ListItem,
   Right,
-  Tabs,
-  Header,
-  Tab,
   Form,
   Picker
 } from "native-base";
-
+import * as Permissions from "expo-permissions";
 import * as Print from "expo-print";
-import * as FileSystem from "expo-file-system";
-import * as Sharing from "expo-sharing";
 
 import * as queries from "../graphql/queries";
 import * as mutations from "../graphql/mutations";
 import Moment from "moment";
+import * as MediaLibrary from "expo-media-library";
 
 function UserIcon({ color }) {
   return <Icon name="person" style={{ fontSize: 30, color: color }} />;
@@ -153,7 +149,7 @@ function EventDetail({ navigation, event, actions }) {
 
     return (
       <View style={styles.title}>
-        <Text>{`Fiche de présence ${event.categorie.nomCategorie}`}</Text>
+        <Text>{`Présence ${event.categorie.nomCategorie}`}</Text>
         {event.groupeParticipants.map((v, index) => {
           return (
             <Text key={index}>{`Participants ${index + 1}: ${
@@ -248,16 +244,68 @@ function EventDetail({ navigation, event, actions }) {
   }
 
   async function createPDF() {
+    let all = [];
+    let absents = [];
+    let presents = event.presences;
+    event.groupeParticipants.forEach(groupe => {
+      groupe.membres.forEach(membre => {
+        all.push(membre);
+      });
+    });
+    var onlyInA = all.filter(comparer(presents));
+    var onlyInB = presents.filter(comparer(all));
+    absents = onlyInA.concat(onlyInB);
+    let htmlContent =
+      "<h2>Fiche de Présence " +
+      event.categorie.nomCategorie +
+      "</h2><h3>Matière: " +
+      event.matiere.nomMatiere +
+      "</h3><h3>" +
+      event.responsables[0].individu.nom +
+      " " +
+      event.responsables[0].individu.prenom +
+      "</h3><h3>";
+    event.groupeParticipants.forEach(v => {
+      htmlContent += v.nomGroupeParticipant + " ";
+    });
+    htmlContent +=
+      "</h3><h3>Date: " +
+      Moment(event.dateDebut).format("H:mm, Do MMM YYYY") +
+      " => " +
+      Moment(event.dateFin).format("H:mm, Do MMM YYYY") +
+      "</h3>";
+    htmlContent += "<br/><h4>Présents (" + presents.length + ")</h4>";
+    presents.forEach(membre => {
+      htmlContent +=
+        "<p>" + membre.individu.nom + " " + membre.individu.prenom + "</p>";
+    });
+    htmlContent += "<br/><h4>Absents (" + absents.length + ")</h4>";
+    absents.forEach(membre => {
+      htmlContent +=
+        "<p>" + membre.individu.nom + " " + membre.individu.prenom + "</p>";
+    });
     try {
       let file = await Print.printToFileAsync({
-        html: "<h1>PDF TEST</h1>",
+        html: htmlContent,
         width: 612,
         height: 792,
         base64: false
       });
-      Sharing.shareAsync(file.uri, { dialogTitle: "Here is your PDF" });
+      saveFile(file.uri);
+      Toast.show({
+        text: "Rapport généré !",
+        type: "success"
+      });
     } catch (error) {
       alert("error");
+    }
+  }
+
+  async function saveFile(file) {
+    const { status } = await Permissions.askAsync(Permissions.CAMERA_ROLL);
+    if (status === "granted") {
+      const asset = await MediaLibrary.createAssetAsync(file);
+      await MediaLibrary.createAlbumAsync("Rapports", asset, false);
     }
   }
 
