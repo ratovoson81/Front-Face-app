@@ -1,20 +1,33 @@
 import React, { useState, useEffect } from "react";
 
-import { Text, View, TouchableOpacity, Alert } from "react-native";
+import {
+  Text,
+  View,
+  TouchableOpacity,
+  Alert,
+  Form,
+  Item,
+  Label,
+  Input
+} from "react-native";
 import { Camera } from "expo-camera";
 import { ReactNativeFile } from "apollo-upload-client";
 import { useMutation } from "@apollo/react-hooks";
-import AwesomeAlert from 'react-native-awesome-alerts';
+import AwesomeAlert from "react-native-awesome-alerts";
 
-import { FontAwesome, Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
+import {
+  FontAwesome,
+  Ionicons,
+  MaterialCommunityIcons
+} from "@expo/vector-icons";
 
 import * as mutations from "../graphql/mutations";
+import Dialog from "react-native-dialog";
 
 function Presence({ navigation, actions, event }) {
   const idEvent = navigation.state.params.idEvent;
   const [hasPermission, setHasPermission] = useState(null);
   const [type, setType] = useState(Camera.Constants.Type.back);
-
   const [flashMode, setFlashMode] = useState(Camera.Constants.FlashMode.off);
 
   const [compareImage] = useMutation(mutations.COMPARE_IMAGE, {
@@ -25,9 +38,7 @@ function Presence({ navigation, actions, event }) {
     onCompleted: function(data) {
       const etudiant = data.compareImage.etudiant;
       const present = data.compareImage.present;
-      const dateFin = data.compareImage.dateFin;
-
-      navigation.goBack();
+      const presentResponsable = data.compareImage.presentResponsable;
 
       if (present) {
         if (etudiant) {
@@ -35,22 +46,56 @@ function Presence({ navigation, actions, event }) {
             newPresenceEntry: etudiant,
             idEvent: event.id
           });
-          Alert.alert("Résultat", etudiant.individu.nom +" "+ etudiant.individu.prenom);
-        } else if (dateFin){
-          actions.setEvenement({
-            dateFin: dateFin,
-            idEvent: event.id
-          });
-          Alert.alert("Responsable vérifié", "L'évenement est clôturée");
+          navigation.goBack();
+          Alert.alert(
+            "Résultat",
+            etudiant.individu.nom + " " + etudiant.individu.prenom
+          );
+        } else if (presentResponsable) {
+          showDialog();
         }
-      }else {
+      } else {
+        navigation.goBack();
         Alert.alert("Résultat", "Visage introuvable");
       }
     }
   });
+
+  const [finishPresence] = useMutation(mutations.FINISH_EVENT, {
+    onError: function(error) {
+      navigation.goBack();
+      Alert.alert("Erreur");
+    },
+    onCompleted: function(data) {
+      const dateFin = data.finishPresence.dateFin;
+      const ok = data.finishPresence.ok;
+      if (ok) {
+        actions.setEvenement({
+          dateFin: dateFin,
+          idEvent: event.id
+        });
+        handleCancel();
+        navigation.goBack();
+        Alert.alert("Responsable vérifié", "L'évenement est clôturée");
+      } else {
+        Alert.alert("Mot de passe incorrect", "Réessayez");
+      }
+    }
+  });
+
   const [state, setState] = useState({
     showAlert: false,
+    dialogVisible: false,
+    mdp: ""
   });
+
+  function showDialog() {
+    setState({ dialogVisible: true });
+  }
+
+  function handleCancel() {
+    setState({ dialogVisible: false });
+  }
 
   useEffect(() => {
     (async () => {
@@ -84,17 +129,18 @@ function Presence({ navigation, actions, event }) {
   }
   function displayIconFlash() {
     if (flashMode) {
-        return <Ionicons
-        name="ios-flash"
-        style={{ color: "#efd807", fontSize: 40}}
-    />;
+      return (
+        <Ionicons name="ios-flash" style={{ color: "#efd807", fontSize: 40 }} />
+      );
     } else {
-        return <Ionicons
-        name="ios-flash-off"
-        style={{ color: "#fff", fontSize: 40}}
-    />;
+      return (
+        <Ionicons
+          name="ios-flash-off"
+          style={{ color: "#fff", fontSize: 40 }}
+        />
+      );
     }
-}
+  }
 
   useEffect(() => {
     (async () => {
@@ -110,10 +156,40 @@ function Presence({ navigation, actions, event }) {
     return <Text>No access to camera</Text>;
   }
 
+  function dialog() {
+    return (
+      <View>
+        <Dialog.Container visible={state.dialogVisible}>
+          <Dialog.Title>Mot de passe du responsable</Dialog.Title>
+          <Dialog.Input
+            secureTextEntry={true}
+            onChangeText={mdp => handleMdp(mdp)}
+            placeholder="Password"
+            style={{ borderColor: "gray", borderBottomWidth: 1, fontSize: 16 }}
+          ></Dialog.Input>
+          <Dialog.Button label="Annuler" onPress={handleCancel} />
+          <Dialog.Button label="Confirmer" onPress={() => handleSubmit()} />
+        </Dialog.Container>
+      </View>
+    );
+  }
+
+  function handleMdp(mdp) {
+    setState({
+      ...state,
+      mdp: mdp
+    });
+  }
+
+  function handleSubmit() {
+    let mdp = state.mdp;
+    finishPresence({ variables: { mdp, eventId: idEvent } });
+  }
+
   return (
     <View style={{ flex: 1 }}>
       <Camera
-        flashMode={flashMode} 
+        flashMode={flashMode}
         style={{ flex: 1 }}
         type={type}
         ref={ref => {
@@ -127,12 +203,19 @@ function Presence({ navigation, actions, event }) {
             flexDirection: "row"
           }}
         >
-          <View style={{flex:1, flexDirection:"row",justifyContent:"space-between",margin:20}}>
+          <View
+            style={{
+              flex: 1,
+              flexDirection: "row",
+              justifyContent: "space-between",
+              margin: 20
+            }}
+          >
             <TouchableOpacity
               style={{
-                alignSelf: 'flex-end',
-                alignItems: 'center',
-                backgroundColor: 'transparent',                  
+                alignSelf: "flex-end",
+                alignItems: "center",
+                backgroundColor: "transparent"
               }}
               onPress={() => {
                 setFlashMode(
@@ -141,27 +224,27 @@ function Presence({ navigation, actions, event }) {
                     : Camera.Constants.FlashMode.off
                 );
               }}
-              >
-              {displayIconFlash()}              
+            >
+              {displayIconFlash()}
             </TouchableOpacity>
             <TouchableOpacity
               style={{
-                alignSelf: 'flex-end',
-                alignItems: 'center',
-                backgroundColor: 'transparent',
+                alignSelf: "flex-end",
+                alignItems: "center",
+                backgroundColor: "transparent"
               }}
               onPress={takePicture.bind()}
-              >
+            >
               <FontAwesome
-                  name="camera"
-                  style={{ color: "#fff", fontSize: 40}}
+                name="camera"
+                style={{ color: "#fff", fontSize: 40 }}
               />
             </TouchableOpacity>
             <TouchableOpacity
               style={{
-                alignSelf: 'flex-end',
-                alignItems: 'center',
-                backgroundColor: 'transparent',
+                alignSelf: "flex-end",
+                alignItems: "center",
+                backgroundColor: "transparent"
               }}
               onPress={() => {
                 setType(
@@ -170,10 +253,10 @@ function Presence({ navigation, actions, event }) {
                     : Camera.Constants.Type.back
                 );
               }}
-              >
+            >
               <MaterialCommunityIcons
-                  name="camera-switch"
-                  style={{ color: "#fff", fontSize: 40}}
+                name="camera-switch"
+                style={{ color: "#fff", fontSize: 40 }}
               />
             </TouchableOpacity>
           </View>
@@ -197,6 +280,7 @@ function Presence({ navigation, actions, event }) {
             hideAlert();
           }}*/
       />
+      {dialog()}
     </View>
   );
 }

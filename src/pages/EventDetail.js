@@ -15,15 +15,17 @@ import {
   ListItem,
   Right,
   Form,
-  Picker
+  Picker,
+  Thumbnail
 } from "native-base";
 import * as Permissions from "expo-permissions";
 import * as Print from "expo-print";
-
+import * as Sharing from "expo-sharing";
 import * as queries from "../graphql/queries";
 import * as mutations from "../graphql/mutations";
 import Moment from "moment";
 import * as MediaLibrary from "expo-media-library";
+import { MEDIA_URL } from "../config/config/";
 
 function UserIcon({ color }) {
   return <Icon name="person" style={{ fontSize: 30, color: color }} />;
@@ -204,9 +206,18 @@ function EventDetail({ navigation, event, actions }) {
       return (
         <Button
           style={{ backgroundColor: "#2BBBAD" }}
-          onPress={() => createPDF()}
+          onPress={() => saveOnDevice()}
         >
           <Icon name="paper" />
+        </Button>
+      );
+  }
+
+  function displayButtonShare() {
+    if (event.dateDebut && event.dateFin)
+      return (
+        <Button style={{ backgroundColor: "#aa66cc" }} onPress={() => Share()}>
+          <Icon name="share" />
         </Button>
       );
   }
@@ -243,7 +254,7 @@ function EventDetail({ navigation, event, actions }) {
     return total;
   }
 
-  async function createPDF() {
+  function createPDF() {
     let all = [];
     let absents = [];
     let presents = event.presences;
@@ -284,17 +295,20 @@ function EventDetail({ navigation, event, actions }) {
       htmlContent +=
         "<p>" + membre.individu.nom + " " + membre.individu.prenom + "</p>";
     });
+    return htmlContent;
+  }
+
+  async function saveOnDevice() {
     try {
       let file = await Print.printToFileAsync({
-        html: htmlContent,
+        html: createPDF(),
         width: 612,
         height: 792,
         base64: false
       });
       saveFile(file.uri);
       Toast.show({
-        text: "Rapport généré !",
-        type: "success"
+        text: "Rapport généré !"
       });
     } catch (error) {
       alert("error");
@@ -306,6 +320,22 @@ function EventDetail({ navigation, event, actions }) {
     if (status === "granted") {
       const asset = await MediaLibrary.createAssetAsync(file);
       await MediaLibrary.createAlbumAsync("Rapports", asset, false);
+    }
+  }
+
+  async function Share() {
+    try {
+      let file = await Print.printToFileAsync({
+        html: createPDF(),
+        width: 612,
+        height: 792,
+        base64: false
+      });
+      Sharing.shareAsync(file.uri, {
+        dialogTitle: "Here is your PDF"
+      });
+    } catch (error) {
+      alert("error");
     }
   }
 
@@ -355,32 +385,38 @@ function EventDetail({ navigation, event, actions }) {
             <FlatList
               data={state.membres}
               keyExtractor={item => item.individu.id.toString()}
-              renderItem={({ item }) => (
-                <ListItem avatar>
-                  <Left>
-                    <Text style={styles.id}>{item.id}</Text>
-                  </Left>
-                  <Body>
-                    <Text style={styles.nom}>
-                      {item.individu.nom} {item.individu.prenom}
-                    </Text>
-                    <Text note style={styles.description_text}>
-                      {item.niveau} {item.parcours}{" "}
-                    </Text>
-                  </Body>
-                  <Right>
-                    {verifPresence(item, event.presences) ? (
-                      <View style={styles.iconPresence}>
-                        <UserIcon color="#2BE320" />
-                      </View>
-                    ) : (
-                      <View style={styles.iconPresence}>
-                        <UserIcon color="#D02A1E" />
-                      </View>
-                    )}
-                  </Right>
-                </ListItem>
-              )}
+              renderItem={({ item }) => {
+                return (
+                  <ListItem avatar>
+                    <Left>
+                      <Thumbnail
+                        source={{
+                          uri: MEDIA_URL + item.individu.faceId
+                        }}
+                      />
+                    </Left>
+                    <Body>
+                      <Text style={styles.nom}>
+                        {item.individu.nom} {item.individu.prenom}
+                      </Text>
+                      <Text note style={styles.description_text}>
+                        {item.niveau} {item.parcours}{" "}
+                      </Text>
+                    </Body>
+                    <Right>
+                      {verifPresence(item, event.presences) ? (
+                        <View style={styles.iconPresence}>
+                          <UserIcon color="#2BE320" />
+                        </View>
+                      ) : (
+                        <View style={styles.iconPresence}>
+                          <UserIcon color="#D02A1E" />
+                        </View>
+                      )}
+                    </Right>
+                  </ListItem>
+                );
+              }}
             />
           </List>
           <View style={styles.date}>
@@ -407,6 +443,7 @@ function EventDetail({ navigation, event, actions }) {
           {displayButtonCancel()}
           {displayButtonPresence()}
           {displayButtonPrint()}
+          {displayButtonShare()}
         </Fab>
       </View>
     </Container>

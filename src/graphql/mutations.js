@@ -144,7 +144,7 @@ export const COMPARE_IMAGE = gql`
   mutation($file: Upload!, $eventId: ID!) {
     compareImage(file: $file, eventId: $eventId) {
       present
-      dateFin
+      presentResponsable
       etudiant {
         id
         individu {
@@ -155,6 +155,15 @@ export const COMPARE_IMAGE = gql`
         niveau
         parcours
       }
+    }
+  }
+`;
+
+export const FINISH_EVENT = gql`
+  mutation($mdp: String, $eventId: ID!) {
+    finishPresence(mdp: $mdp, eventId: $eventId) {
+      dateFin
+      ok
     }
   }
 `;
