@@ -1,4 +1,2 @@
-//export const API_URL = "http://127.0.0.1:8000/graphql/"; // web
-//export const API_URL = "http://10.0.2.2:8000/graphql/"; // virtual device
-export const API_URL = "http://192.168.137.39:8000/graphql/"; // real device Tony
-//export const API_URL = "http://192.168.88.41:8000/graphql/"; // real device Zeke
+export const API_URL = "http://192.168.88.50:8000/graphql/";
+export const MEDIA_URL = "http://192.168.88.50:8000/media/";
