@@ -44,6 +44,7 @@ export const ALL_DATA = gql`
           id
           nom
           prenom
+          faceId
         }
         niveau
         parcours
